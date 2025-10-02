@@ -1,0 +1,8 @@
+syntax = "proto3";
+package m2.db.v1;
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service BanWordService {
+  rpc 
+}
