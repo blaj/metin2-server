@@ -1,4 +1,4 @@
-﻿namespace Blaj.ReMetin2Server.Common.Application.Utils;
+﻿namespace Metin2Server.Shared.Utils;
 
 public static class StringUtils
 {
@@ -26,5 +26,41 @@ public static class StringUtils
         var chars = new char[length];
         chars[0] = '\0';
         return chars;
+    }
+    
+    public static string FromCBuffer(char[] buf)
+    {
+        var n = Array.IndexOf(buf, '\0');
+        
+        if (n < 0)
+        {
+            n = buf.Length;
+        }
+        
+        return new string(buf, 0, n);
+    }
+    
+    public static char[] ToCBuffer(string str, int length)
+    {
+        var buffer = new char[length];
+
+        if (!string.IsNullOrEmpty(str))
+        {
+            var maxPayload = length - 1;
+            var count = Math.Min(str.Length, maxPayload);
+            
+            for (var i = 0; i < count; i++)
+            {
+                buffer[i] = str[i];
+            }
+            
+            buffer[count] = '\0';
+        }
+        else
+        {
+            buffer[0] = '\0';
+        }
+
+        return buffer;
     }
 }

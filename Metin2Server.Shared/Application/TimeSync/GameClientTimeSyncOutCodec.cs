@@ -1,6 +1,11 @@
-﻿namespace Metin2Server.Shared.Application.TimeSync;
+﻿using Metin2Server.Shared.Protocol.Codecs;
 
-public class GameClientTimeSyncOutCodec
+namespace Metin2Server.Shared.Application.TimeSync;
+
+public class GameClientTimeSyncOutCodec : IPacketOutCodec<GameClientTimeSyncPacket>
 {
-    
+    public ReadOnlyMemory<byte> Write(GameClientTimeSyncPacket gameClientHandshakePacket)
+    {
+        return ReadOnlyMemory<byte>.Empty;
+    }
 }

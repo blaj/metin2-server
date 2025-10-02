@@ -1,6 +1,8 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface IAccountRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface IAccountRepository : IAuditingEntityRepository<Account>
 {
-    
+    Task<Account?> FindOneByLoginAsync(string login, CancellationToken cancellationToken);
 }

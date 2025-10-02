@@ -1,9 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.32.1" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.71.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="DbContracts/Common/Enums.proto" GrpcServices="None" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/Common/Models.proto" GrpcServices="None" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/DbService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/LoginKeyService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/BannedWordService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/CharacterService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+    </ItemGroup>
 </Project>

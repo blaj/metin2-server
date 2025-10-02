@@ -1,0 +1,87 @@
+syntax = "proto3";
+package m2.character.v1;
+
+import "google/protobuf/empty.proto";
+import "Common/Enums.proto";
+import "Common/Models.proto";
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service CharacterService {
+  rpc TryBeginCharacterCreation (TryBeginCharacterCreationRequest) returns (TryBeginCharacterCreationResponse);
+  rpc ExistsByIndexAndAccountId (ExistsByIndexAndAccountIdRequest) returns (ExistsByIndexAndAccountIdResponse);
+  rpc ExistsByName (ExistsByNameRequest) returns (ExistsByNameResponse);
+  rpc CreateCharacter (CreateCharacterRequest) returns (CreateCharacterResponse);
+  rpc GetCharactersByAccountId (GetCharactersByAccountIdRequest) returns (GetCharactersByAccountIdResponse);
+  rpc GetCharacterLevelByAccountIdAndIndex (GetCharacterLevelByAccountIdAndIndexRequest) returns (GetCharacterLevelByAccountIdAndIndexResponse);
+  rpc DeleteCharacterByAccountIdAndIndex (DeleteCharacterByAccountIdAndIndexRequest) returns (DeleteCharacterByAccountIdAndIndexResponse);
+}
+
+message TryBeginCharacterCreationRequest {
+  int64 account_id = 1;
+}
+
+message TryBeginCharacterCreationResponse {
+  bool allowed = 1;
+}
+
+message ExistsByIndexAndAccountIdRequest {
+  int64 account_id = 1;
+  int32 index = 2;
+}
+
+message ExistsByIndexAndAccountIdResponse {
+  bool exists = 1;
+}
+
+message ExistsByNameRequest {
+  string name = 1;
+}
+
+message ExistsByNameResponse {
+  bool exists = 1;
+}
+
+message CreateCharacterRequest{
+  int64 account_id = 1;
+  string name = 2;
+  m2.common.v1.Race race = 3;
+  int32 shape = 4;
+  uint32 index = 5;
+}
+
+message CreateCharacterResponse {
+  oneof result {
+    m2.common.v1.Character character = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message GetCharactersByAccountIdRequest {
+  int64 account_id = 1;
+}
+
+message GetCharactersByAccountIdResponse {
+  repeated m2.common.v1.Character characters = 1;
+}
+
+message GetCharacterLevelByAccountIdAndIndexRequest {
+  int64 account_id = 1;
+  uint32 index = 2;
+}
+
+message GetCharacterLevelByAccountIdAndIndexResponse {
+  oneof result {
+    uint32 level = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message DeleteCharacterByAccountIdAndIndexRequest {
+  int64 account_id = 1;
+  uint32 index = 2;
+}
+
+message DeleteCharacterByAccountIdAndIndexResponse {
+  bool success = 1;
+}

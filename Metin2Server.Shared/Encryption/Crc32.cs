@@ -1,4 +1,4 @@
-﻿namespace Blaj.ReMetin2Server.Common.Application.Encryptions;
+﻿namespace Metin2Server.Shared.Encryption;
 
 public class Crc32
 {

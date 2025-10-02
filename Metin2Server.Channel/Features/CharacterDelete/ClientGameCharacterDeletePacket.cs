@@ -1,3 +1,10 @@
-﻿namespace Metin2Server.Channel.Features.CharacterDelete;
+﻿using Metin2Server.Shared.Common;
 
-public record ClientGameCharacterDeletePacket();
+namespace Metin2Server.Channel.Features.CharacterDelete;
+
+public record ClientGameCharacterDeletePacket(byte Index, char[] PrivateCode)
+{
+    public static int Size() =>
+        sizeof(byte) +
+        sizeof(byte) * Constants.PrivateCodeLength;
+}

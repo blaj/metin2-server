@@ -1,7 +1,7 @@
 ﻿using System.Buffers.Binary;
 using Metin2Server.Shared.Protocol.Codecs;
 
-namespace Metin2Server.Auth.Features.Handshake;
+namespace Metin2Server.Shared.Application.Handshake;
 
 public class ClientGameHandshakeInCodec : IPacketInCodec<ClientGameHandshakePacket>
 {

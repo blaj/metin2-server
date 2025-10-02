@@ -1,8 +1,16 @@
 syntax = "proto3";
-package m2.db.v1;
+package m2.banned_word.v1;
 
 option csharp_namespace = "Metin2Server.Shared.DbContracts";
 
-service BanWordService {
-  rpc 
+service BannedWordService {
+  rpc ExistsByWord (ExistsByWordRequest) returns (ExistsByWordResponse);
+}
+
+message ExistsByWordRequest {
+  string word = 1;
+}
+
+message ExistsByWordResponse {
+  bool exists = 1;
 }

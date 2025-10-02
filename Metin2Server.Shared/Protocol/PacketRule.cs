@@ -1,7 +1,6 @@
-﻿namespace Metin2Server.Network;
+﻿namespace Metin2Server.Shared.Protocol;
 
 public record PacketRule(
-    ClientGameHeader ClientGameHeader,
     PacketSizeKind PacketSizeKind,
     SequenceBehavior SequenceBehavior,
     SessionPhase AllowedSessionPhases,

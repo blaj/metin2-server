@@ -1,4 +1,4 @@
-﻿namespace Metin2Server.Network;
+﻿namespace Metin2Server.Shared.Protocol;
 
 public static class SequenceTable
 {

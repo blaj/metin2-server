@@ -1,6 +1,7 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface IAuditingEntityRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface IAuditingEntityRepository<TEntity> : IRepository<TEntity> where TEntity : AuditingEntity
 {
-    
 }

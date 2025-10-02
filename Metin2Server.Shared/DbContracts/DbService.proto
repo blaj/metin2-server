@@ -1,0 +1,64 @@
+syntax = "proto3";
+package m2.db.v1;
+
+import "google/protobuf/empty.proto";
+import "Common/Enums.proto";
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service DbService {
+  rpc GetAccountByLogin (GetAccountByLoginRequest) returns (GetAccountByLoginResponse);
+  rpc GetAccountById (GetAccountByIdRequest) returns (GetAccountByIdResponse);
+  rpc ChangeAccountEmpire (ChangeAccountEmpireRequest) returns (ChangeAccountEmpireResponse);
+  rpc GetPrivateCodeById (GetPrivateCodeByIdRequest) returns (GetPrivateCodeByIdResponse);
+}
+
+message GetAccountByLoginRequest {
+  string login = 1;
+}
+
+message GetAccountByLoginResponse {
+  oneof result {
+    Account account = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message GetAccountByIdRequest {
+  int64 id = 1;
+}
+
+message GetAccountByIdResponse {
+  oneof result {
+    Account account = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message ChangeAccountEmpireRequest {
+  int64 id = 1;
+  m2.common.v1.Empire empire = 2;
+}
+
+message ChangeAccountEmpireResponse {
+  bool ok = 1;
+}
+
+message GetPrivateCodeByIdRequest {
+  int64 id = 1;
+}
+
+message GetPrivateCodeByIdResponse {
+  oneof result {
+    string private_code = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message Account {
+  int64 id = 1;
+  string username = 2;
+  string password = 3;
+  bool is_active = 4;
+  m2.common.v1.Empire empire = 5;
+}

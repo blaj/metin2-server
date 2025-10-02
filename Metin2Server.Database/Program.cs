@@ -61,6 +61,9 @@ public class Program
 
         app.MapGrpcService<DbServiceImpl>();
         app.MapGrpcService<LoginKeyServiceImpl>();
+        app.MapGrpcService<BannedWordServiceImpl>();
+        app.MapGrpcService<CharacterServiceImpl>();
+        
         app.MapGet("/", () => "Metin2 DB Service running...");
 
         await app.RunAsync();

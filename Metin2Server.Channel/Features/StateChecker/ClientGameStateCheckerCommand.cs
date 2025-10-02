@@ -1,3 +1,5 @@
-﻿namespace Metin2Server.Channel.Features.StateChecker;
+﻿using MediatR;
 
-public record ClientGameStateCheckerCommand();
+namespace Metin2Server.Channel.Features.StateChecker;
+
+public record ClientGameStateCheckerCommand() : IRequest;

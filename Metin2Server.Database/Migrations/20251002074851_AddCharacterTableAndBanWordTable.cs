@@ -173,6 +173,16 @@ namespace Metin2Server.Database.Migrations
                 schema: "character",
                 table: "skill",
                 column: "character_id");
+
+            migrationBuilder.Sql("GRANT USAGE ON SCHEMA character TO metin_app_user;");
+            migrationBuilder.Sql("GRANT INSERT, SELECT, UPDATE ON character.character TO metin_app_user;");
+            migrationBuilder.Sql("GRANT INSERT, SELECT, UPDATE ON character.quick_slot TO metin_app_user;");
+            migrationBuilder.Sql("GRANT INSERT, SELECT, UPDATE ON character.skill TO metin_app_user;");
+            migrationBuilder.Sql("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA character TO metin_app_user;");
+
+            migrationBuilder.Sql("GRANT USAGE ON SCHEMA dictionary TO metin_app_user;");
+            migrationBuilder.Sql("GRANT INSERT, SELECT, UPDATE ON dictionary.banned_word TO metin_app_user;");
+            migrationBuilder.Sql("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA dictionary TO metin_app_user;");
         }
 
         /// <inheritdoc />

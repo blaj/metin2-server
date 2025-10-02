@@ -1,4 +1,4 @@
-﻿namespace Metin2Server.Domain.Enums;
+﻿namespace Metin2Server.Shared.Enums;
 
 public enum Empire : byte
 {

@@ -1,0 +1,33 @@
+syntax = "proto3";
+package m2.login_key.v1;
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service LoginKeyService {
+  rpc Issue (IssueLoginKeyRequest) returns (IssueLoginKeyResponse);
+  rpc Consume (ConsumeLoginKeyRequest) returns (ConsumeLoginKeyResponse);
+}
+
+message IssueLoginKeyRequest {
+  int64 account_id = 1;
+  int64 issued_session_id = 2;
+  int32 ttl_seconds = 3;
+  string expected_ip = 4;
+}
+
+message IssueLoginKeyResponse {
+  uint32 key = 1;
+  int64 expire_at_unix = 2;
+}
+
+message ConsumeLoginKeyRequest {
+  uint32 key = 1;
+  int64 expected_account_id = 2;
+  string client_ip = 3;
+}
+
+message ConsumeLoginKeyResponse {
+  bool ok = 1;
+  int64 account_id = 2;
+  int64 expire_at_unix = 3;
+}

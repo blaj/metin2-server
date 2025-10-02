@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Metin2Server.Shared.Application;
 using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Application.TimeSync;
 using Metin2Server.Shared.Common;
@@ -7,9 +6,9 @@ using Metin2Server.Shared.Protocol;
 using Metin2Server.Shared.Utils;
 using Microsoft.Extensions.Logging;
 
-namespace Metin2Server.Auth.Features.Handshake;
+namespace Metin2Server.Shared.Application.Handshake;
 
-public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHandshakeCommand, object?>
+public abstract class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHandshakeCommand>
 {
     private const int BiasAcceptMax = 50;
 
@@ -24,9 +23,12 @@ public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHands
         _logger = logger;
     }
 
-    public Task<object?> Handle(ClientGameHandshakeCommand command, CancellationToken cancellationToken)
+    public abstract SessionPhase SuccessHandshakePhase();
+
+    public Task<Unit> Handle(ClientGameHandshakeCommand command, CancellationToken cancellationToken)
     {
         var currentSession = _sessionAccessor.Current;
+        var currentPacketOutCollector = _sessionAccessor.CurrentPacketOutCollector;
 
         if (currentSession is not { State.HandshakeCrc: not null } ||
             command.Handshake != currentSession.State.HandshakeCrc!.Value)
@@ -35,8 +37,9 @@ public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHands
                 $"[{currentSession.Id}] Invalid handshake: packet={command.Handshake} session={currentSession.State.HandshakeCrc}");
 
             currentSession.Phase = SessionPhase.Closing;
+            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-            return Task.FromResult<object?>(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
+            return Task.FromResult(Unit.Value);
         }
 
 
@@ -45,8 +48,9 @@ public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHands
             _logger.LogError($"[{currentSession.Id}] Delta < 0");
 
             currentSession.Phase = SessionPhase.Closing;
+            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-            return Task.FromResult<object?>(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
+            return Task.FromResult(Unit.Value);
         }
 
         var currentTime = DateTimeUtils.GetUnixTime();
@@ -64,14 +68,18 @@ public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHands
             {
                 _logger.LogInformation($"[{currentSession.Id}] Send time sync");
 
-                return Task.FromResult<object?>(new GameClientTimeSyncPacket());
+                currentPacketOutCollector.Add(new GameClientTimeSyncPacket());
+
+                return Task.FromResult(Unit.Value);
             }
 
             currentSession.State.ClientTime = currentTime;
             currentSession.State.IsHandshaking = false;
 
-            currentSession.Phase = SessionPhase.Auth;
-            return Task.FromResult<object?>(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
+            currentSession.Phase = SuccessHandshakePhase();
+            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
+
+            return Task.FromResult(Unit.Value);
         }
 
         var newDelta = (int)(currentTime - command.CurrentTime) / 2;
@@ -91,18 +99,21 @@ public class ClientGameHandshakeCommandHandler : IRequestHandler<ClientGameHands
                 _logger.LogError($"[{currentSession.Id}] Handshake retry limit reached");
 
                 currentSession.Phase = SessionPhase.Closing;
+                currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-                return Task.FromResult<object?>(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
+                return Task.FromResult(Unit.Value);
             }
         }
 
         currentSession.State.IsHandshaking = true;
         currentSession.State.HandshakeSentTime = DateTimeUtils.GetUnixTime();
 
-        return Task.FromResult<object?>(
+        currentPacketOutCollector.Add(
             new GameClientHandshakePacket(
                 currentSession.State.HandshakeCrc!.Value,
                 currentTime,
                 newDelta));
+
+        return Task.FromResult(Unit.Value);
     }
 }

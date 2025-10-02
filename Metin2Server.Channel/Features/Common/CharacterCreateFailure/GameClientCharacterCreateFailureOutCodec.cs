@@ -1,11 +1,11 @@
 ﻿using Metin2Server.Shared.Protocol.Codecs;
 
-namespace Metin2Server.Channel.Features.Common.CreateCharacterFailure;
+namespace Metin2Server.Channel.Features.Common.CharacterCreateFailure;
 
-public class GameClientCreateCharacterFailureOutCodec : IPacketOutCodec<GameClientCreateCharacterFailurePacket>
+public class GameClientCharacterCreateFailureOutCodec : IPacketOutCodec<GameClientCharacterCreateFailurePacket>
 {
-    public ReadOnlyMemory<byte> Write(GameClientCreateCharacterFailurePacket gameClientCreateCharacterFailurePacket)
+    public ReadOnlyMemory<byte> Write(GameClientCharacterCreateFailurePacket gameClientCharacterCreateFailurePacket)
     {
-        return new[] { gameClientCreateCharacterFailurePacket.Type };
+        return new[] { gameClientCharacterCreateFailurePacket.Type };
     }
 }

@@ -1,6 +1,7 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface IArchiveEntityRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface IArchiveEntityRepository<TEntity> : IRepository<TEntity> where TEntity : ArchiveEntity
 {
-    
 }

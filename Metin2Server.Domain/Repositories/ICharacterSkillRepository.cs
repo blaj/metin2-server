@@ -1,6 +1,7 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface ICharacterSkillRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface ICharacterSkillRepository : IRepository<CharacterSkill>
 {
-    
 }

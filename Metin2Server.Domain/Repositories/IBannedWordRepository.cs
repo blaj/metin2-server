@@ -1,6 +1,8 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface IBannedWordRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface IBannedWordRepository : IArchiveEntityRepository<BannedWord>
 {
-    
+    Task<bool> ExistsByWordAsync(string word, CancellationToken cancellationToken);
 }

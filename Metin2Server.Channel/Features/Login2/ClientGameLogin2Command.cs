@@ -1,3 +1,5 @@
-﻿namespace Metin2Server.Channel.Features.Login2;
+﻿using MediatR;
 
-public record ClientGameLogin2Command();
+namespace Metin2Server.Channel.Features.Login2;
+
+public record ClientGameLogin2Command(string Username, uint LoginKey, uint[] AdwClientKey) : IRequest;

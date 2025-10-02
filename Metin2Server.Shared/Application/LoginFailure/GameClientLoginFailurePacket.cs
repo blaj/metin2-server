@@ -1,3 +1,3 @@
 ﻿namespace Metin2Server.Shared.Application.LoginFailure;
 
-public record GameClientLoginFailurePacket();
+public record GameClientLoginFailurePacket(string Status);

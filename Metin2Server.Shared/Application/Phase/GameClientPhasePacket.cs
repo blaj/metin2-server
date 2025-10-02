@@ -1,3 +1,5 @@
-﻿namespace Metin2Server.Shared.Application.Phase;
+﻿using Metin2Server.Shared.Protocol;
 
-public record GameClientPhasePacket();
+namespace Metin2Server.Shared.Application.Phase;
+
+public record GameClientPhasePacket(PhaseWire Phase);

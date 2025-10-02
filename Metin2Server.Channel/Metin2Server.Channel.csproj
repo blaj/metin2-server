@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
@@ -8,16 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-      <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0"/>
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Metin2Server.Infrastructure\Metin2Server.Infrastructure.csproj" />
-      <ProjectReference Include="..\Metin2Server.Network\Metin2Server.Network.csproj" />
-      <ProjectReference Include="..\Metin2Server.Slices\Metin2Server.Slices.csproj" />
+        <ProjectReference Include="..\Metin2Server.Domain\Metin2Server.Domain.csproj" />
+        <ProjectReference Include="..\Metin2Server.Shared\Metin2Server.Shared.csproj" />
+        <ProjectReference Include="..\Metin2Server.Network\Metin2Server.Network.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

@@ -1,22 +1,26 @@
-﻿using Metin2Server.Shared.Application;
+﻿using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Protocol;
 using Metin2Server.Shared.Utils;
 
-namespace Metin2Server.Auth.Features.Handshake;
+namespace Metin2Server.Shared.Application.Handshake;
 
 public class AuthHandshakeStartup : ISessionStartup
 {
     private readonly GameClientHandshakeOutCodec _gameClientHandshakeOutCodec;
+    private readonly GameClientPhaseOutCodec _gameClientPhaseOutCodec;
 
-    public AuthHandshakeStartup(GameClientHandshakeOutCodec gameClientHandshakeOutCodec)
+    public AuthHandshakeStartup(
+        GameClientHandshakeOutCodec gameClientHandshakeOutCodec,
+        GameClientPhaseOutCodec gameClientPhaseOutCodec)
     {
         _gameClientHandshakeOutCodec = gameClientHandshakeOutCodec;
+        _gameClientPhaseOutCodec = gameClientPhaseOutCodec;
     }
 
     public async Task RunAsync(
         ISessionContext session,
         Func<GameClientHeader, ReadOnlyMemory<byte>, CancellationToken, Task> send,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         var crcHandshake = Shared.Encryption.Handshake.CreateHandshake();
         var currentTime = DateTimeUtils.GetUnixTime();
@@ -27,10 +31,14 @@ public class AuthHandshakeStartup : ISessionStartup
 
         session.Phase = SessionPhase.Handshake;
 
-        var payload =
+        var payload = _gameClientPhaseOutCodec.Write(new GameClientPhasePacket(PhaseWireMapper.Map(session.Phase)));
+
+        await send(GameClientHeader.Phase, payload, cancellationToken);
+        
+        payload =
             _gameClientHandshakeOutCodec.Write(
                 new GameClientHandshakePacket(crcHandshake, currentTime, 0));
 
-        await send(GameClientHeader.Handshake, payload, ct);
+        await send(GameClientHeader.Handshake, payload, cancellationToken);
     }
 }

@@ -1,3 +1,3 @@
 ﻿namespace Metin2Server.Channel.Features.Empire;
 
-public record ClientGameEmpirePacket();
+public record ClientGameEmpirePacket(Shared.Enums.Empire Empire);

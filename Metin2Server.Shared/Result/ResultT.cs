@@ -1,6 +1,6 @@
-﻿namespace Blaj.AquafySharedLibrary.Result;
+﻿namespace Metin2Server.Shared.Result;
 
-public class Result<TValue> : Result
+public class Result<TValue> : Metin2Server.Shared.Result.Result
 {
     private readonly TValue? _value;
 

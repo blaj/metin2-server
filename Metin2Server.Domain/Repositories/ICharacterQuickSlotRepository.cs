@@ -1,6 +1,7 @@
-﻿namespace Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Domain.Entities;
 
-public interface ICharacterQuickSlotRepository
+namespace Metin2Server.Domain.Repositories;
+
+public interface ICharacterQuickSlotRepository : IRepository<CharacterQuickSlot>
 {
-    
 }

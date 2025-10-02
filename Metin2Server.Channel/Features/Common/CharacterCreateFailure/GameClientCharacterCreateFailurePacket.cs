@@ -1,6 +1,6 @@
-﻿namespace Metin2Server.Channel.Features.Common.CreateCharacterFailure;
+﻿namespace Metin2Server.Channel.Features.Common.CharacterCreateFailure;
 
-public record GameClientCreateCharacterFailurePacket(byte Type)
+public record GameClientCharacterCreateFailurePacket(byte Type)
 {
     public static int Size() => sizeof(byte);
 }

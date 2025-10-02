@@ -2,18 +2,21 @@
 
 namespace Metin2Server.Network;
 
-public class PacketRuleRegistry
+public class PacketRuleRegistryIn
 {
     private readonly Dictionary<ClientGameHeader, PacketRule> _rules = new();
 
-    public void RegisterRule(PacketRule packetRule) => _rules[packetRule.ClientGameHeader] = packetRule;
+    public void RegisterRule(ClientGameHeader header, PacketRule rule) => _rules[header] = rule;
 
     public bool TryGetRule(ClientGameHeader clientGameHeader, out PacketRule rule) =>
         _rules.TryGetValue(clientGameHeader, out rule!);
 
     public bool Validate(ClientGameHeader clientGameHeader, int payloadLength)
     {
-        if (!TryGetRule(clientGameHeader, out var rule)) return false;
+        if (!TryGetRule(clientGameHeader, out var rule))
+        {
+            return false;
+        }
 
         return rule.PacketSizeKind switch
         {

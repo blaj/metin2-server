@@ -54,7 +54,7 @@ namespace Metin2Server.Database.Migrations
             
             migrationBuilder.Sql("GRANT USAGE ON SCHEMA account TO metin_app_user;");
             migrationBuilder.Sql("GRANT INSERT, SELECT, UPDATE ON account.account TO metin_app_user;");
-            migrationBuilder.Sql("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA aquarium TO metin_app_user;");
+            migrationBuilder.Sql("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA account TO metin_app_user;");
         }
 
         /// <inheritdoc />

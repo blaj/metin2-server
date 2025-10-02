@@ -1,6 +1,19 @@
-﻿namespace Metin2Server.Database.Data.Configurations;
+﻿using Metin2Server.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class ArchiveEntityConfiguration
+namespace Metin2Server.Database.Data.Configurations;
+
+public static class ArchiveEntityConfiguration
 {
-    
+    public static void AddArchiveEntityConfiguration<TEntity>(this EntityTypeBuilder<TEntity> builder) where TEntity : ArchiveEntity
+    {
+        builder
+            .Property(entity => entity.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        builder
+            .Property(entity => entity.Archived)
+            .HasDefaultValue(false);
+    }
 }

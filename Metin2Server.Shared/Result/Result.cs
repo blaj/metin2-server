@@ -1,4 +1,4 @@
-﻿namespace Blaj.AquafySharedLibrary.Result;
+﻿namespace Metin2Server.Shared.Result;
 
 public class Result
 {

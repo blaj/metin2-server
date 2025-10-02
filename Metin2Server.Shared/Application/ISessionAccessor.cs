@@ -2,5 +2,6 @@
 
 public interface ISessionAccessor
 {
-    
+    ISessionContext Current { get; }
+    PacketOutCollector CurrentPacketOutCollector { get; }
 }

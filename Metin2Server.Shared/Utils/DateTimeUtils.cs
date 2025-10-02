@@ -1,4 +1,4 @@
-﻿namespace Blaj.ReMetin2Server.Shared.Application.Utils;
+﻿namespace Metin2Server.Shared.Utils;
 
 public static class DateTimeUtils
 {

@@ -1,6 +1,9 @@
 ﻿namespace Metin2Server.Shared.Enums;
 
-public class Job
+public enum Job : ushort
 {
-    
+    Warrior,
+    Assassin,
+    Sura,
+    Shaman
 }
