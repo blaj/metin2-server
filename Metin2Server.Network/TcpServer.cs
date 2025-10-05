@@ -108,10 +108,6 @@ public class TcpServer
             Func<GameClientHeader, ReadOnlyMemory<byte>, CancellationToken, Task> sendDelegate =
                 async (header, delegatePayload, token) =>
                 {
-                    // var seq = _packetRuleRegistryOut.TryGetRule(header, out var rule)
-                    //     ? rule.SequenceBehavior
-                    //     : SequenceBehavior.None;
-                    // return session.SendAsync(_packetRuleRegistryOut, header, delegatePayload, seq, token);
                     await _packetTransport.SendAsync(session, header, delegatePayload, token);
                 };
 
@@ -122,10 +118,6 @@ public class TcpServer
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                // await foreach (var pkt in PacketFramer.ReadPacketsAsync(
-                //                    session.Socket,
-                //                    _packetRuleRegistryIn,
-                //                    cancellationToken))
                 await foreach(var pkt in _packetTransport.ReadAsync(session, cancellationToken))
                 {
                     session.Touch();
@@ -172,17 +164,6 @@ public class TcpServer
                             }
                             
                             await _packetTransport.SendAsync(session, (GameClientHeader)outHeader, outPayload, cancellationToken);
-
-                            // var seq = _packetRuleRegistryOut.TryGetRule((GameClientHeader)outHeader, out var rule)
-                            //     ? rule.SequenceBehavior
-                            //     : SequenceBehavior.None;
-                            //
-                            // await session.SendAsync(
-                            //     _packetRuleRegistryOut,
-                            //     (GameClientHeader)outHeader,
-                            //     outPayload,
-                            //     seq, 
-                            //     cancellationToken);
                         }
 
                         collector.Clear();

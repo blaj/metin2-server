@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using Metin2Server.Shared.Application;
+using Metin2Server.Shared.Dto;
 using Metin2Server.Shared.Encryption;
 using Metin2Server.Shared.Protocol;
 using Microsoft.Extensions.Logging;
@@ -16,10 +17,9 @@ public class Session : ISessionContext, IAsyncDisposable
     public uint? LoginKey { get; set; }
     public long? AccountId { get; set; }
     public int SequenceIndex { get; set; } = 0;
+    public GameCharacter? GameCharacter { get; set; }
     
     private int _phase;
-
-    private readonly SemaphoreSlim _sendLock = new(1, 1);
 
     public Session(long id, Socket socket)
     {
@@ -58,7 +58,6 @@ public class Session : ISessionContext, IAsyncDisposable
             // ignored
         }
 
-        _sendLock.Dispose();
         await Task.CompletedTask;
     }
 }

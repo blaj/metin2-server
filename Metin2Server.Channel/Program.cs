@@ -1,20 +1,34 @@
 ﻿using System.Net;
 using Metin2Server.Channel.Features.CharacterCreate;
 using Metin2Server.Channel.Features.CharacterDelete;
+using Metin2Server.Channel.Features.CharacterSelect;
+using Metin2Server.Channel.Features.ClientVersion2;
+using Metin2Server.Channel.Features.Common.Channel;
 using Metin2Server.Channel.Features.Common.ChannelStatus;
+using Metin2Server.Channel.Features.Common.CharacterAdd;
+using Metin2Server.Channel.Features.Common.CharacterAdditional;
 using Metin2Server.Channel.Features.Common.CharacterCreateFailure;
 using Metin2Server.Channel.Features.Common.CharacterCreateSuccess;
 using Metin2Server.Channel.Features.Common.CharacterDeleteFailure;
 using Metin2Server.Channel.Features.Common.CharacterDeleteSuccess;
+using Metin2Server.Channel.Features.Common.CharacterPoints;
 using Metin2Server.Channel.Features.Common.Empire;
+using Metin2Server.Channel.Features.Common.ItemSet;
 using Metin2Server.Channel.Features.Common.LoginSuccessNewslot;
+using Metin2Server.Channel.Features.Common.MainCharacter;
+using Metin2Server.Channel.Features.Common.SkillLevel;
+using Metin2Server.Channel.Features.Common.Time;
 using Metin2Server.Channel.Features.Empire;
+using Metin2Server.Channel.Features.EnterGame;
 using Metin2Server.Channel.Features.Login2;
+using Metin2Server.Channel.Features.MarkLogin;
+using Metin2Server.Channel.Features.Move;
 using Metin2Server.Channel.Features.StateChecker;
-using Metin2Server.Domain.Entities;
+using Metin2Server.Channel.Services;
 using Metin2Server.Network;
 using Metin2Server.Shared.Application;
 using Metin2Server.Shared.Application.Handshake;
+using Metin2Server.Shared.Application.LoginFailure;
 using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Common;
 using Metin2Server.Shared.DbContracts;
@@ -77,14 +91,43 @@ public class Program
                             new Uri(context.Configuration["Grpc:CharacterService"]!);
                     });
 
+                services.AddGrpcClient<ChannelInformationService.ChannelInformationServiceClient>(
+                    "ChannelInformationClient",
+                    options =>
+                    {
+                        options.Address =
+                            new Uri(context.Configuration["Grpc:ChannelInformationService"]!);
+                    });
+
                 services.AddSlicesMediatR(typeof(ClientGameCharacterCreateCommandHandler).Assembly);
                 services.AddSlicesMediatR(typeof(ClientGameHandshakeCommandHandler).Assembly);
+
+                services.AddHostedService<ChannelInformationBackgroundService>(
+                    serviceProvider =>
+                    {
+                        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+                        return new ChannelInformationBackgroundService(
+                            Convert.ToByte(configuration["ServerIndex"]),
+                            Convert.ToUInt16(configuration["port"]),
+                            serviceProvider
+                                .GetRequiredService<ChannelInformationService.ChannelInformationServiceClient>(),
+                            serviceProvider.GetRequiredService<ILogger<ChannelInformationBackgroundService>>());
+                    });
 
                 services.AddSingleton<TcpServer>();
                 services.AddSingleton<ISessionAccessor, SessionAccessor>();
                 services.AddSingleton<PacketOutCollector>();
                 services.AddSingleton<PacketTransport>();
                 services.AddSingleton<PacketSequencer>();
+                services.AddSingleton<CharacterVidAllocator>(serviceProvider =>
+                {
+                    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+                    return new CharacterVidAllocator(1);
+                });
+                services.AddSingleton<GameCharacterStore>();
+                services.AddSingleton<GameCharacterService>();
 
                 services.AddSingleton<GameClientHandshakeOutCodec>();
                 services.AddSingleton<GameClientPhaseOutCodec>();
@@ -95,12 +138,27 @@ public class Program
                 services.AddSingleton<GameClientCharacterCreateSuccessOutCodec>();
                 services.AddSingleton<GameClientCharacterDeleteSuccessOutCodec>();
                 services.AddSingleton<GameClientCharacterDeleteFailureOutCodec>();
+                services.AddSingleton<GameClientMainCharacterOutCodec>();
+                services.AddSingleton<GameClientItemSetOutCodec>();
+                services.AddSingleton<GameClientCharacterPointsOutCodec>();
+                services.AddSingleton<GameClientLoginFailureOutCodec>();
+                services.AddSingleton<GameClientSkillLevelOutCodec>();
+                services.AddSingleton<GameClientCharacterAddOutCodec>();
+                services.AddSingleton<GameClientCharacterAdditionalOutCodec>();
+                services.AddSingleton<GameClientTimeOutCodec>();
+                services.AddSingleton<GameClientChannelOutPacket>();
+
                 services.AddSingleton<ClientGameHandshakeInCodec>();
                 services.AddSingleton<ClientGameLogin2InCodec>();
                 services.AddSingleton<ClientGameStateCheckerInCodec>();
                 services.AddSingleton<ClientGameEmpireInCodec>();
                 services.AddSingleton<ClientGameCharacterCreateInCodec>();
                 services.AddSingleton<ClientGameCharacterDeleteInCodec>();
+                services.AddSingleton<ClientGameCharacterSelectInCodec>();
+                services.AddSingleton<ClientGameMarkLoginInCodec>();
+                services.AddSingleton<ClientGameClientVersion2InCodec>();
+                services.AddSingleton<ClientGameEnterGameInCodec>();
+                services.AddSingleton<ClientGameMoveInCodec>();
 
                 services.AddSingleton<ISessionStartup, AuthHandshakeStartup>();
 
@@ -164,6 +222,55 @@ public class Program
                             ClientGameCharacterDeletePacket.Size(),
                             null));
 
+                    registry.RegisterRule(
+                        ClientGameHeader.CharacterSelect,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.ExpectInbound,
+                            SessionPhase.Login | SessionPhase.Auth | SessionPhase.Handshake |
+                            SessionPhase.SelectCharacter,
+                            ClientGameCharacterSelectPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        ClientGameHeader.MarkLogin,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Login | SessionPhase.Auth | SessionPhase.Handshake |
+                            SessionPhase.SelectCharacter,
+                            ClientGameMarkLoginPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        ClientGameHeader.ClientVersion2,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.ExpectInbound,
+                            SessionPhase.Login | SessionPhase.Auth | SessionPhase.Handshake |
+                            SessionPhase.SelectCharacter | SessionPhase.Loading,
+                            ClientGameClientVersion2Packet.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        ClientGameHeader.Entergame,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.ExpectInbound,
+                            SessionPhase.Login | SessionPhase.Auth | SessionPhase.Handshake |
+                            SessionPhase.SelectCharacter | SessionPhase.Loading,
+                            0,
+                            null));
+                    
+                    registry.RegisterRule(
+                        ClientGameHeader.Move,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.ExpectInbound,
+                            SessionPhase.InGame,
+                            ClientGameMovePacket.Size(),
+                            null));
+
                     return registry;
                 });
 
@@ -210,7 +317,7 @@ public class Program
                     registry.RegisterRule(
                         GameClientHeader.RespondChannelStatus,
                         new PacketRule(
-                            PacketSizeKind.NoneFixed,
+                            PacketSizeKind.Flexible,
                             SequenceBehavior.None,
                             SessionPhase.Login | SessionPhase.Auth | SessionPhase.Handshake,
                             sizeof(ushort) + sizeof(byte),
@@ -233,7 +340,7 @@ public class Program
                             SessionPhase.Login | SessionPhase.SelectCharacter,
                             GameClientCharacterCreateSuccessPacket.Size(),
                             null));
-                    
+
                     registry.RegisterRule(
                         GameClientHeader.CharacterDeleteSuccess,
                         new PacketRule(
@@ -242,7 +349,7 @@ public class Program
                             SessionPhase.Login | SessionPhase.SelectCharacter,
                             GameClientCharacterDeleteSuccessPacket.Size(),
                             null));
-                    
+
                     registry.RegisterRule(
                         GameClientHeader.CharacterDeleteFailure,
                         new PacketRule(
@@ -250,6 +357,87 @@ public class Program
                             SequenceBehavior.None,
                             SessionPhase.Login | SessionPhase.SelectCharacter,
                             GameClientCharacterDeleteFailurePacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.LoginFailure,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Login | SessionPhase.SelectCharacter,
+                            GameClientLoginFailurePacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.MainCharacter,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading,
+                            GameClientMainCharacterPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.CharacterPoints,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading,
+                            GameClientCharacterPointsPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.ItemSet,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading,
+                            GameClientItemSetPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.SkillLevel,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading,
+                            GameClientSkillLevelPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.CharacterAdd,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading | SessionPhase.InGame,
+                            GameClientCharacterAddPacket.Size(),
+                            null));
+
+                    registry.RegisterRule(
+                        GameClientHeader.CharAdditionalInfo,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading | SessionPhase.InGame,
+                            GameClientCharacterAdditionalPacket.Size(),
+                            null));
+                        
+                    registry.RegisterRule(
+                        GameClientHeader.Time,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading | SessionPhase.InGame,
+                            GameClientTimePacket.Size(),
+                            null));
+                        
+                    registry.RegisterRule(
+                        GameClientHeader.Channel,
+                        new PacketRule(
+                            PacketSizeKind.NoneFixed,
+                            SequenceBehavior.None,
+                            SessionPhase.Loading | SessionPhase.InGame,
+                            GameClientChannelPacket.Size(),
                             null));
 
                     return registry;
@@ -298,6 +486,31 @@ public class Program
                             packet.Index,
                             StringUtils.FromCBuffer(packet.PrivateCode)));
 
+                    registry.Map(
+                        ClientGameHeader.CharacterSelect,
+                        serviceProvider.GetRequiredService<ClientGameCharacterSelectInCodec>(),
+                        packet => new ClientGameCharacterSelectCommand(packet.Index));
+
+                    registry.Map(
+                        ClientGameHeader.MarkLogin,
+                        serviceProvider.GetRequiredService<ClientGameMarkLoginInCodec>(),
+                        packet => new ClientGameMarkLoginCommand());
+
+                    registry.Map(
+                        ClientGameHeader.ClientVersion2,
+                        serviceProvider.GetRequiredService<ClientGameClientVersion2InCodec>(),
+                        packet => new ClientGameClientVersion2Command());
+
+                    registry.Map(
+                        ClientGameHeader.Entergame,
+                        serviceProvider.GetRequiredService<ClientGameEnterGameInCodec>(),
+                        _ => new ClientGameEnterGameCommand());
+                    
+                    registry.Map(
+                        ClientGameHeader.Move,
+                        serviceProvider.GetRequiredService<ClientGameMoveInCodec>(),
+                        _ => new ClientGameMoveCommand());
+
                     return registry;
                 });
 
@@ -336,10 +549,46 @@ public class Program
                     registry.Map(
                         GameClientHeader.CharacterDeleteSuccess,
                         serviceProvider.GetRequiredService<GameClientCharacterDeleteSuccessOutCodec>());
-                    
+
                     registry.Map(
                         GameClientHeader.CharacterDeleteFailure,
                         serviceProvider.GetRequiredService<GameClientCharacterDeleteFailureOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.LoginFailure,
+                        serviceProvider.GetRequiredService<GameClientLoginFailureOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.MainCharacter,
+                        serviceProvider.GetRequiredService<GameClientMainCharacterOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.CharacterPoints,
+                        serviceProvider.GetRequiredService<GameClientCharacterPointsOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.ItemSet,
+                        serviceProvider.GetRequiredService<GameClientItemSetOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.SkillLevel,
+                        serviceProvider.GetRequiredService<GameClientSkillLevelOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.CharacterAdd,
+                        serviceProvider.GetRequiredService<GameClientCharacterAddOutCodec>());
+
+                    registry.Map(
+                        GameClientHeader.CharAdditionalInfo,
+                        serviceProvider.GetRequiredService<GameClientCharacterAdditionalOutCodec>());
+                    
+                    registry.Map(
+                        GameClientHeader.Time,
+                        serviceProvider.GetRequiredService<GameClientTimeOutCodec>());
+                    
+                    registry.Map(
+                        GameClientHeader.Channel,
+                        serviceProvider.GetRequiredService<GameClientChannelOutPacket>());
                     
                     return registry;
                 });

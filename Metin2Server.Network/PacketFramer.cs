@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using Metin2Server.Shared.Protocol;
+using Microsoft.Extensions.Logging;
 
 namespace Metin2Server.Network;
 
@@ -15,6 +16,7 @@ public class PacketFramer
         PacketRuleRegistryIn packetRuleRegistryIn,
         Session session,
         PacketSequencer packetSequencer,
+        ILogger<PacketFramer> logger,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var headerBuffer = new byte[1];
@@ -36,6 +38,8 @@ public class PacketFramer
                                             ?? throw new IOException($"Header={header} SizeKind=NoneFixed requires ExactPayloadSize"),
                 _ => throw new NotSupportedException($"Unsupported SizeKind for header=0x{header:X2}")
             };
+            
+            logger.LogInformation($"Incoming packet with header: {header}, size: {payloadLen}");
 
             var expectSeq = rule.SequenceBehavior == SequenceBehavior.ExpectInbound;
             var raw = new byte[payloadLen + (expectSeq ? 1 : 0)];
@@ -76,6 +80,7 @@ public class PacketFramer
         ReadOnlyMemory<byte> payload,
         Session session,
         PacketSequencer packetSequencer,
+        ILogger<PacketFramer> logger,
         CancellationToken cancellationToken)
     {
         if (!registryOut.TryGetRule(header, out var rule))
@@ -83,7 +88,8 @@ public class PacketFramer
             throw new IOException($"Unknown header={header}");
         }
         
-        ReadOnlyMemory<byte> finalPayload = payload;
+        var finalPayload = payload;
+        
         if ((rule.SequenceBehavior & SequenceBehavior.PrependOutbound) != 0)
         {
             var b = packetSequencer.NextOutbound(session);
@@ -95,6 +101,8 @@ public class PacketFramer
             }
             finalPayload = buf;
         }
+        
+        logger.LogInformation($"Outgoing packet with header: {header}, size: {finalPayload}");
 
         switch (rule.PacketSizeKind)
         {
@@ -140,9 +148,22 @@ public class PacketFramer
                 break;
             }
 
+            case PacketSizeKind.Flexible:
+            {
+                var buf = new byte[1 + finalPayload.Length];
+                buf[0] = (byte)header;
+                if (!finalPayload.IsEmpty)
+                {
+                    finalPayload.CopyTo(buf.AsMemory(1));
+                }
+
+                await SendAllAsync(socket, buf, cancellationToken);
+                break;
+            }
+
             default:
             {
-                throw new NotSupportedException($"Unsupported SizeKind for header=0x{header:X2}");
+                throw new NotSupportedException($"Unsupported SizeKind for header={header}");
             }
         }
     }

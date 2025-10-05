@@ -12,18 +12,20 @@ public class PacketRuleRegistryOut
 
     public bool Validate(GameClientHeader header, int payloadLength)
     {
-        if (!TryGetRule(header, out var r))
+        if (!TryGetRule(header, out var packetRule))
         {
             return false;
         }
         
-        return r.PacketSizeKind switch
+        return packetRule.PacketSizeKind switch
         {
             PacketSizeKind.TotalSize =>
-                (!r.ExactPayloadSize.HasValue || payloadLength == r.ExactPayloadSize.Value) &&
-                (!r.MinPayloadSize.HasValue || payloadLength >= r.MinPayloadSize.Value),
+                (!packetRule.ExactPayloadSize.HasValue || payloadLength == packetRule.ExactPayloadSize.Value) &&
+                (!packetRule.MinPayloadSize.HasValue || payloadLength >= packetRule.MinPayloadSize.Value),
             
-            PacketSizeKind.NoneFixed => r.ExactPayloadSize.HasValue && payloadLength == r.ExactPayloadSize.Value,
+            PacketSizeKind.NoneFixed => packetRule.ExactPayloadSize.HasValue && payloadLength == packetRule.ExactPayloadSize.Value,
+            
+            PacketSizeKind.Flexible => true,
             
             _ => false
         };

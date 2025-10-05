@@ -39,7 +39,11 @@ public abstract class ClientGameHandshakeCommandHandler : IRequestHandler<Client
             currentSession.Phase = SessionPhase.Closing;
             currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-            return Task.FromResult(Unit.Value);
+            return Task.FromResult(
+                GameClientPhasePacketUtils.AddToPacketCollector(
+                    currentSession,
+                    currentPacketOutCollector,
+                    SessionPhase.Closing));
         }
 
 
@@ -47,10 +51,11 @@ public abstract class ClientGameHandshakeCommandHandler : IRequestHandler<Client
         {
             _logger.LogError($"[{currentSession.Id}] Delta < 0");
 
-            currentSession.Phase = SessionPhase.Closing;
-            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
-
-            return Task.FromResult(Unit.Value);
+            return Task.FromResult(
+                GameClientPhasePacketUtils.AddToPacketCollector(
+                    currentSession,
+                    currentPacketOutCollector,
+                    SessionPhase.Closing));
         }
 
         var currentTime = DateTimeUtils.GetUnixTime();
@@ -98,10 +103,11 @@ public abstract class ClientGameHandshakeCommandHandler : IRequestHandler<Client
             {
                 _logger.LogError($"[{currentSession.Id}] Handshake retry limit reached");
 
-                currentSession.Phase = SessionPhase.Closing;
-                currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
-
-                return Task.FromResult(Unit.Value);
+                return Task.FromResult(
+                    GameClientPhasePacketUtils.AddToPacketCollector(
+                        currentSession,
+                        currentPacketOutCollector,
+                        SessionPhase.Closing));
             }
         }
 

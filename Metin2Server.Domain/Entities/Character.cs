@@ -35,6 +35,8 @@ public class Character : AuditingEntity
     public List<CharacterQuickSlot> QuickSlots { get; set; } = [];
 
     public required Account Account { get; set; }
+    
+    public List<CharacterItem> Items { get; set; } = [];
 
     [Owned]
     public class CoordinatesInfo

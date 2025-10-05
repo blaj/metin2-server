@@ -15,6 +15,7 @@ service CharacterService {
   rpc GetCharactersByAccountId (GetCharactersByAccountIdRequest) returns (GetCharactersByAccountIdResponse);
   rpc GetCharacterLevelByAccountIdAndIndex (GetCharacterLevelByAccountIdAndIndexRequest) returns (GetCharacterLevelByAccountIdAndIndexResponse);
   rpc DeleteCharacterByAccountIdAndIndex (DeleteCharacterByAccountIdAndIndexRequest) returns (DeleteCharacterByAccountIdAndIndexResponse);
+  rpc GetCharacterByAccountIdAndIndex (GetCharacterByAccountIdAndIndexRequest) returns (GetCharacterByAccountIdAndIndexResponse);
 }
 
 message TryBeginCharacterCreationRequest {
@@ -85,3 +86,16 @@ message DeleteCharacterByAccountIdAndIndexRequest {
 message DeleteCharacterByAccountIdAndIndexResponse {
   bool success = 1;
 }
+
+message GetCharacterByAccountIdAndIndexRequest {
+  int64 account_id = 1;
+  uint32 index = 2;
+}
+
+message GetCharacterByAccountIdAndIndexResponse {
+  oneof result {
+    m2.common.v1.Character character = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+

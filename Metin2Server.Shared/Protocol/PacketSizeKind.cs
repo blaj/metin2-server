@@ -3,5 +3,6 @@
 public enum PacketSizeKind
 {
     NoneFixed,
-    TotalSize
+    TotalSize,
+    Flexible
 }

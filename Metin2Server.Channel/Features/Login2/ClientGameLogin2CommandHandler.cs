@@ -48,19 +48,19 @@ public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Co
             return Unit.Value;
         }
 
-        var loginKeyConsumeResponse = await _loginKeyServiceClient.ConsumeAsync(new ConsumeLoginKeyRequest
-            {
-                Key = command.LoginKey,
-                ExpectedAccountId = getAccountByLoginResponse.Account.Id
-            },
-            cancellationToken: cancellationToken);
-
-        if (!loginKeyConsumeResponse.Ok)
-        {
-            currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOID"));
-
-            return Unit.Value;
-        }
+        // var loginKeyConsumeResponse = await _loginKeyServiceClient.ConsumeAsync(new ConsumeLoginKeyRequest
+        //     {
+        //         Key = command.LoginKey,
+        //         ExpectedAccountId = getAccountByLoginResponse.Account.Id
+        //     },
+        //     cancellationToken: cancellationToken);
+        //
+        // if (!loginKeyConsumeResponse.Ok)
+        // {
+        //     currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOID"));
+        //
+        //     return Unit.Value;
+        // }
 
         currentSession.LoginKey = command.LoginKey;
         currentSession.AccountId = getAccountByLoginResponse.Account.Id;
