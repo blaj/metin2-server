@@ -1,4 +1,4 @@
-﻿namespace Metin2Server.Channel.Features.Common.ChannelStatus;
+﻿namespace Metin2Server.Shared.Enums;
 
 public enum ChannelStatus : byte
 {

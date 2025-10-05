@@ -179,6 +179,29 @@ public class CharacterServiceImpl : CharacterService.CharacterServiceBase
         };
     }
 
+    public override async Task<GetCharacterByAccountIdAndIndexResponse> GetCharacterByAccountIdAndIndex(
+        GetCharacterByAccountIdAndIndexRequest request, 
+        ServerCallContext context)
+    {
+        var character = await _characterRepository.FindOneByAccountIdAndIndex(
+            request.AccountId,
+            GrpcUtils.ToByteChecked(request.Index),
+            context.CancellationToken);
+
+        if (character == null)
+        {
+            return new GetCharacterByAccountIdAndIndexResponse
+            {
+                NotFound = new Empty()
+            };
+        }
+
+        return new GetCharacterByAccountIdAndIndexResponse
+        {
+            Character = character.ToProto()
+        };
+    }
+
     private static Coords GetStartPositionCoords(Shared.Enums.Empire empire)
     {
         var startPositionCoord = empire.GetStartPosition();

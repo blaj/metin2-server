@@ -30,10 +30,10 @@ public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCo
 
         if (currentSession.AccountId == null)
         {
-            currentSession.Phase = SessionPhase.Closing;
-            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
-
-            return Unit.Value;
+            return GameClientPhasePacketUtils.AddToPacketCollector(
+                currentSession, 
+                currentPacketOutCollector,
+                SessionPhase.Closing);
         }
 
         var getAccountByIdResponse = await _dbServiceClient.GetAccountByIdAsync(
@@ -42,10 +42,10 @@ public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCo
 
         if (getAccountByIdResponse.ResultCase == GetAccountByIdResponse.ResultOneofCase.NotFound)
         {
-            currentSession.Phase = SessionPhase.Closing;
-            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
-
-            return Unit.Value;
+            return GameClientPhasePacketUtils.AddToPacketCollector(
+                currentSession, 
+                currentPacketOutCollector,
+                SessionPhase.Closing);
         }
 
         var changeAccountEmpireResponse = await _dbServiceClient.ChangeAccountEmpireAsync(
@@ -55,10 +55,10 @@ public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCo
 
         if (!changeAccountEmpireResponse.Ok)
         {
-            currentSession.Phase = SessionPhase.Closing;
-            currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
-
-            return Unit.Value;
+            return GameClientPhasePacketUtils.AddToPacketCollector(
+                currentSession, 
+                currentPacketOutCollector,
+                SessionPhase.Closing);
         }
 
         var characters = new[]

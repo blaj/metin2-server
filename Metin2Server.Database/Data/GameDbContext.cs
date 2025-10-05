@@ -11,7 +11,9 @@ public class GameDbContext : DbContext, IUnitOfWork
     public DbSet<Character> Characters { get; set; }
     public DbSet<CharacterSkill> CharacterSkills { get; set; }
     public DbSet<CharacterQuickSlot> CharacterQuickSlots { get; set; }
+    public DbSet<CharacterItem> CharacterItems { get; set; }
     public DbSet<BannedWord> BannedWords { get; set; }
+    public DbSet<ItemDefinition> ItemDefinitions { get; set; }
 
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;

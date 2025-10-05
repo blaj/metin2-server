@@ -71,5 +71,10 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
             .HasMany(character => character.QuickSlots)
             .WithOne(characterQuickSlot => characterQuickSlot.Character)
             .IsRequired();
+
+        builder
+            .HasMany(character => character.Items)
+            .WithOne(characterItem => characterItem.Character)
+            .IsRequired();
     }
 }

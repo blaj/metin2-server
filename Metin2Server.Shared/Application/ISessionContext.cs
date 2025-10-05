@@ -1,4 +1,4 @@
-﻿using Metin2Server.Shared.Encryption;
+﻿using Metin2Server.Shared.Dto;
 using Metin2Server.Shared.Protocol;
 
 namespace Metin2Server.Shared.Application;
@@ -12,4 +12,5 @@ public interface ISessionContext
     uint? LoginKey { get; set; }
     long? AccountId { get; set; }
     public int SequenceIndex { get; set; }
+    public GameCharacter? GameCharacter { get; set; }
 }

@@ -24,5 +24,6 @@
         <Protobuf Include="DbContracts/LoginKeyService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/BannedWordService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/CharacterService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/ChannelInformationService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
     </ItemGroup>
 </Project>

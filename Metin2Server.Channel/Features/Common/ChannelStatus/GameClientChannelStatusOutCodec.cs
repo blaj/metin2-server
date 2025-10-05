@@ -7,11 +7,26 @@ public class GameClientChannelStatusOutCodec : IPacketOutCodec<GameClientChannel
 {
     public ReadOnlyMemory<byte> Write(GameClientChannelStatusPacket gameClientChannelStatusPacket)
     {
-        var buffer = new byte[3];
-        
-        BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(0, 2), gameClientChannelStatusPacket.Port);
-        buffer[2] = (byte)gameClientChannelStatusPacket.Status;
-        
+        var length = sizeof(uint) +
+                     (gameClientChannelStatusPacket.Size * (sizeof(ushort) + sizeof(Shared.Enums.ChannelStatus)));
+
+        var buffer = new byte[length];
+        var span = buffer.AsSpan();
+        var offset = 0;
+
+        BinaryPrimitives.WriteUInt32LittleEndian(
+            buffer.AsSpan(offset, sizeof(uint)),
+            gameClientChannelStatusPacket.Size);
+        offset += sizeof(uint);
+
+        foreach (var (port, status) in gameClientChannelStatusPacket.Channels)
+        {
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer.AsSpan(offset, sizeof(ushort)), port);
+            offset += sizeof(ushort);
+
+            span[offset++] = (byte)status;
+        }
+
         return buffer;
     }
 }

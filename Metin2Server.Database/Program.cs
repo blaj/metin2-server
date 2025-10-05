@@ -29,6 +29,7 @@ public class Program
         builder.Services.AddScoped<ICharacterQuickSlotRepository, CharacterQuickSlotRepository>();
         builder.Services.AddScoped<IBannedWordRepository, BannedWordRepository>();
         builder.Services.AddScoped<ICharacterCreationTimeRepository, CharacterCreationTimeRepository>();
+        builder.Services.AddScoped<IChannelInformationRepository, ChannelInformationRepository>();
         builder.Services.AddScoped<IConnectionMultiplexer>(_ =>
         {
             var configuration =
@@ -51,18 +52,19 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<GameDbContext>();
             context.Database.SetConnectionString(builder.Configuration.GetConnectionString("MigrationConnection"));
 
-            if (context.Database.GetPendingMigrations().Any())
+            if ((await context.Database.GetPendingMigrationsAsync()).Any())
             {
-                context.Database.Migrate();
+                await context.Database.MigrateAsync();
             }
 
-            context.Dispose();
+            await context.DisposeAsync();
         }
 
         app.MapGrpcService<DbServiceImpl>();
         app.MapGrpcService<LoginKeyServiceImpl>();
         app.MapGrpcService<BannedWordServiceImpl>();
         app.MapGrpcService<CharacterServiceImpl>();
+        app.MapGrpcService<ChannelInformationServiceImpl>();
         
         app.MapGet("/", () => "Metin2 DB Service running...");
 

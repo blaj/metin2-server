@@ -1,0 +1,40 @@
+syntax = "proto3";
+package m2.channel_information.v1;
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service ChannelInformationService {
+  rpc SendChannelInformation (SendChannelInformationRequest) returns (google.protobuf.Empty);
+  rpc GetChannelInformations (google.protobuf.Empty) returns (GetChannelInformationsResponse);
+  rpc RemoveChannelInformation (RemoveChannelInformationRequest) returns (google.protobuf.Empty);
+}
+
+message SendChannelInformationRequest {
+  ChannelInformation channel_information = 1;
+}
+
+message GetChannelInformationsResponse {
+  repeated ChannelInformation entries = 1;
+}
+
+message RemoveChannelInformationRequest {
+  uint32 port = 1;
+}
+
+message ChannelInformation {
+  uint32 port = 1;
+  uint32 server_index = 2;
+  ChannelStatus status = 3;
+  uint32 online_players = 4;
+  double cpu_load = 5;
+  double memory_load = 6;
+}
+
+enum ChannelStatus {
+  CHANNEL_STATUS_OFFLINE = 0;
+  CHANNEL_STATUS_ONLINE = 1;
+  CHANNEL_STATUS_BUSY = 2;
+  CHANNEL_STATUS_FULL = 3;
+}
