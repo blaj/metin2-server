@@ -21,7 +21,7 @@ WORKDIR /src
 COPY Metin2Server.Shared/Metin2Server.Shared.csproj Metin2Server.Shared/
 COPY Metin2Server.Network/Metin2Server.Network.csproj Metin2Server.Network/
 COPY Metin2Server.Domain/Metin2Server.Domain.csproj Metin2Server.Domain/
-COPY Metin2Server.Channel/Metin2Server.Auth.csproj Metin2Server.Auth/
+COPY Metin2Server.Auth/Metin2Server.Auth.csproj Metin2Server.Auth/
 
 RUN dotnet restore "./Metin2Server.Auth/Metin2Server.Auth.csproj" --arch $TARGETARCH
 
