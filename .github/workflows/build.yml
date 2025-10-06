@@ -1,0 +1,101 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore
+
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+
+  docker:
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-test
+    if: needs.build-and-test.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: metin2-server-database
+            context: ./Metin2Server.Database
+          - name: metin2-server-auth
+            context: ./Metin2Server.Auth
+          - name: metin2-server-channel
+            context: ./Metin2Server.Channel
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Write GitHub secrets to tmp files
+        run: |
+          echo "${{ secrets.GH_TOKEN }}" > github_token
+          echo "${{ secrets.GH_USERNAME }}" > github_username
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push ${{ matrix.name }}
+        env:
+          IMAGE_NAME: ${{ matrix.name }}
+          CONTEXT_DIR: ${{ matrix.context }}
+        run: |
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID="ghcr.io/${OWNER_LC}/${IMAGE_NAME}"
+
+          VERSION="${{ env.BRANCH_NAME }}"
+          VERSION=$(echo "$VERSION" | sed 's/\//-/g')
+
+          TAGS="-t ${IMAGE_ID}:${VERSION} -t ${IMAGE_ID}:${GITHUB_SHA::7}"
+          if [ "$VERSION" = "main" ]; then
+            TAGS="$TAGS -t ${IMAGE_ID}:latest"
+          fi
+
+          echo "IMAGE_ID=$IMAGE_ID"
+          echo "BRANCH_NAME=${{ env.BRANCH_NAME }}"
+          echo "TAGS=$TAGS"
+
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          docker buildx create --use
+          
+          docker buildx build \
+            --platform linux/amd64 \
+            --secret id=github_token,src=github_token \
+            --secret id=github_username,src=github_username \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            $TAGS \
+            "$CONTEXT_DIR" \
+            --push
+
+      - name: Clean up secrets
+        if: always()
+        run: rm github_token github_username
