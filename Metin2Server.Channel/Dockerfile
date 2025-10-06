@@ -1,5 +1,5 @@
 # Restore and build
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 LABEL org.opencontainers.image.source=https://github.com/blaj/metin2-server-channel
 
@@ -38,7 +38,7 @@ ARG TARGETARCH
 RUN dotnet publish "./Metin2Server.Channel/Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
 
 # Entrypoint
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 USER app
 
