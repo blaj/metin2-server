@@ -1,7 +1,7 @@
 # Restore and build
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-LABEL org.opencontainers.image.source=https://github.com/blaj/metin2-server-channel
+LABEL org.opencontainers.image.source=https://github.com/blaj/metin2-server-database
 
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
@@ -21,13 +21,13 @@ WORKDIR /src
 COPY Metin2Server.Shared/Metin2Server.Shared.csproj Metin2Server.Shared/
 COPY Metin2Server.Network/Metin2Server.Network.csproj Metin2Server.Network/
 COPY Metin2Server.Domain/Metin2Server.Domain.csproj Metin2Server.Domain/
-COPY Metin2Server.Channel/Metin2Server.Channel.csproj Metin2Server.Channel/
+COPY Metin2Server.Database/Metin2Server.Database.csproj Metin2Server.Database/
 
-RUN dotnet restore "./Metin2Server.Channel/Metin2Server.Channel.csproj" --arch $TARGETARCH
+RUN dotnet restore "./Metin2Server.Database/Metin2Server.Database.csproj" --arch $TARGETARCH
 
 COPY . ./
 
-RUN dotnet build "./Metin2Server.Channel/Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/build --arch $TARGETARCH
+RUN dotnet build "./Metin2Server.Database/Metin2Server.Database.csproj" -c $BUILD_CONFIGURATION -o /app/build --arch $TARGETARCH
 
 # Publish
 FROM build AS publish
@@ -35,7 +35,7 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
 
-RUN dotnet publish "./Metin2Server.Channel/Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
+RUN dotnet publish "./Metin2Server.Database/Metin2Server.Database.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
 
 # Entrypoint
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -46,4 +46,4 @@ WORKDIR /app
 
 COPY --from=publish /app/publish .
 
-ENTRYPOINT ["dotnet", "Metin2Server.Channel.dll"]
+ENTRYPOINT ["dotnet", "Metin2Server.Database.dll"]
