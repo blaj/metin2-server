@@ -18,7 +18,7 @@ RUN --mount=type=secret,id=github_token \
 
 WORKDIR /src
 
-COPY Metin2Server.Auth.csproj ./
+COPY Metin2Server.Database.csproj ./
 
 RUN dotnet restore "./Metin2Server.Database.csproj" --arch $TARGETARCH
 

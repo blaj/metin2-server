@@ -41,11 +41,14 @@ jobs:
       matrix:
         include:
           - name: metin2-server-database
-            context: ./Metin2Server.Database
+            dockerfile: ./Metin2Server.Database/Dockerfile
+            dll: Metin2Server.Database.dll
           - name: metin2-server-auth
-            context: ./Metin2Server.Auth
+            dockerfile: ./Metin2Server.Auth/Dockerfile
+            dll: Metin2Server.Auth.dll
           - name: metin2-server-channel
-            context: ./Metin2Server.Channel
+            dockerfile: ./Metin2Server.Channel/Dockerfile
+            dll: Metin2Server.Channel.dll
 
     steps:
       - name: Checkout code
@@ -88,12 +91,13 @@ jobs:
           
           docker buildx build \
             --platform linux/amd64 \
-            --secret id=github_token,src=github_token \
-            --secret id=github_username,src=github_username \
+            --secret id=GITHUB_TOKEN,env=GITHUB_TOKEN \
+            --secret id=GITHUB_USERNAME,env=GITHUB_USERNAME \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
+            --file "${{ matrix.dockerfile }}" \
             $TAGS \
-            "$CONTEXT_DIR" \
+            . \
             --push
 
       - name: Clean up secrets

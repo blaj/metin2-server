@@ -18,13 +18,16 @@ RUN --mount=type=secret,id=github_token \
 
 WORKDIR /src
 
-COPY Metin2Server.Auth.csproj ./
+COPY Metin2Server.Shared/Metin2Server.Shared.csproj Metin2Server.Shared/
+COPY Metin2Server.Network/Metin2Server.Shared.csproj Metin2Server.Network/
+COPY Metin2Server.Domain/Metin2Server.Shared.csproj Metin2Server.Domain/
+COPY Metin2Server.Auth/Metin2Server.Auth.csproj Metin2Server.Auth/
 
-RUN dotnet restore "./Metin2Server.Channel.csproj" --arch $TARGETARCH
+RUN dotnet restore "./Metin2Server.Channel/Metin2Server.Channel.csproj" --arch $TARGETARCH
 
 COPY . ./
 
-RUN dotnet build "./Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/build --arch $TARGETARCH
+RUN dotnet build "./Metin2Server.Channel/Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/build --arch $TARGETARCH
 
 # Publish
 FROM build AS publish
@@ -32,7 +35,7 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
 
-RUN dotnet publish "./Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
+RUN dotnet publish "./Metin2Server.Channel/Metin2Server.Channel.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --arch $TARGETARCH
 
 # Entrypoint
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
