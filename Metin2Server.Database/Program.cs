@@ -1,7 +1,8 @@
 ﻿using Metin2Server.Database.Data;
+using Metin2Server.Database.Domain.Repositories;
+using Metin2Server.Database.Grpc;
 using Metin2Server.Database.Interceptors;
 using Metin2Server.Database.Repositories;
-using Metin2Server.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using StackExchange.Redis;
@@ -18,7 +19,7 @@ public class Program
             config.ReadFrom.Configuration(context.Configuration));
 
         builder.Services.AddSingleton(TimeProvider.System);
-        
+
         builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<GameDbContext>());
         builder.Services.AddScoped<AuditingEntityInterceptor>();
         builder.Services.AddScoped<ArchiveEntityInterceptor>();
@@ -30,6 +31,7 @@ public class Program
         builder.Services.AddScoped<IBannedWordRepository, BannedWordRepository>();
         builder.Services.AddScoped<ICharacterCreationTimeRepository, CharacterCreationTimeRepository>();
         builder.Services.AddScoped<IChannelInformationRepository, ChannelInformationRepository>();
+        builder.Services.AddScoped<ICharacterItemRepository, CharacterItemRepository>();
         builder.Services.AddScoped<IConnectionMultiplexer>(_ =>
         {
             var configuration =
@@ -60,12 +62,14 @@ public class Program
             await context.DisposeAsync();
         }
 
-        app.MapGrpcService<DbServiceImpl>();
+        app.MapGrpcService<AccountServiceImpl>();
         app.MapGrpcService<LoginKeyServiceImpl>();
         app.MapGrpcService<BannedWordServiceImpl>();
         app.MapGrpcService<CharacterServiceImpl>();
         app.MapGrpcService<ChannelInformationServiceImpl>();
-        
+        app.MapGrpcService<CharacterItemServiceImpl>();
+        app.MapGrpcService<ItemDefinitionServiceImpl>();
+
         app.MapGet("/", () => "Metin2 DB Service running...");
 
         await app.RunAsync();

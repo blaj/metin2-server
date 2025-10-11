@@ -18,18 +18,18 @@ public class ClientGameCharacterSelectCommandHandler : IRequestHandler<ClientGam
 {
     private readonly ISessionAccessor _sessionAccessor;
     private readonly CharacterService.CharacterServiceClient _characterServiceClient;
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
     private readonly GameCharacterService _gameCharacterService;
 
     public ClientGameCharacterSelectCommandHandler(
         ISessionAccessor sessionAccessor,
         CharacterService.CharacterServiceClient characterServiceClient,
-        DbService.DbServiceClient dbServiceClient,
+        AccountService.AccountServiceClient accountServiceClient,
         GameCharacterService gameCharacterService)
     {
         _sessionAccessor = sessionAccessor;
         _characterServiceClient = characterServiceClient;
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
         _gameCharacterService = gameCharacterService;
     }
 
@@ -46,11 +46,11 @@ public class ClientGameCharacterSelectCommandHandler : IRequestHandler<ClientGam
                 SessionPhase.Closing);
         }
 
-        var getAccountByIdResponse = await _dbServiceClient.GetAccountByIdAsync(
-            new GetAccountByIdRequest { Id = currentSession.AccountId.Value },
+        var getAccountByIdGrpcResponse = await _accountServiceClient.GetAccountByIdAsync(
+            new GetAccountByIdGrpcRequest { Id = currentSession.AccountId.Value },
             cancellationToken: cancellationToken);
 
-        if (getAccountByIdResponse.ResultCase == GetAccountByIdResponse.ResultOneofCase.NotFound)
+        if (getAccountByIdGrpcResponse.ResultCase == GetAccountByIdGrpcResponse.ResultOneofCase.NotFound)
         {
             return GameClientPhasePacketUtils.AddToPacketCollector(
                 currentSession,
@@ -58,14 +58,14 @@ public class ClientGameCharacterSelectCommandHandler : IRequestHandler<ClientGam
                 SessionPhase.Closing);
         }
 
-        var getCharacterByAccountIdAndIndexResponse =
+        var getCharacterByAccountIdAndIndexGrpcResponse =
             await _characterServiceClient.GetCharacterByAccountIdAndIndexAsync(
-                new GetCharacterByAccountIdAndIndexRequest
+                new GetCharacterByAccountIdAndIndexGrpcRequest
                     { AccountId = currentSession.AccountId.Value, Index = command.Index },
                 cancellationToken: cancellationToken);
 
-        if (getCharacterByAccountIdAndIndexResponse.ResultCase ==
-            GetCharacterByAccountIdAndIndexResponse.ResultOneofCase.NotFound)
+        if (getCharacterByAccountIdAndIndexGrpcResponse.ResultCase ==
+            GetCharacterByAccountIdAndIndexGrpcResponse.ResultOneofCase.NotFound)
         {
             return GameClientPhasePacketUtils.AddToPacketCollector(
                 currentSession,
@@ -84,9 +84,9 @@ public class ClientGameCharacterSelectCommandHandler : IRequestHandler<ClientGam
         currentSession.Phase = SessionPhase.Loading;
         currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-        var character = getCharacterByAccountIdAndIndexResponse.Character;
+        var character = getCharacterByAccountIdAndIndexGrpcResponse.Character;
         var gameCharacter =
-            _gameCharacterService.CreateGameCharacter(character, getAccountByIdResponse.Account.Empire, currentSession);
+            _gameCharacterService.CreateGameCharacter(character, getAccountByIdGrpcResponse.Account.Empire, currentSession);
 
         if (gameCharacter == null)
         {

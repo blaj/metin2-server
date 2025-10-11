@@ -1,0 +1,21 @@
+syntax = "proto3";
+package m2.character_item.v1;
+
+import "google/protobuf/empty.proto";
+import "Common/Enums.proto";
+import "Common/Models.proto";
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service CharacterItemService {
+  rpc GetCharacterItemsByCharacterIdAndAccountId (GetCharacterItemsByCharacterIdAndAccountIdGrpcRequest) returns (GetCharacterItemsByCharacterIdAndAccountIdGrpcResponse);
+}
+
+message GetCharacterItemsByCharacterIdAndAccountIdGrpcRequest {
+  int64 character_id = 1;
+  int64 account_id = 2;
+}
+
+message GetCharacterItemsByCharacterIdAndAccountIdGrpcResponse {
+  repeated m2.common.v1.CharacterItemGrpc character_items = 1;
+}

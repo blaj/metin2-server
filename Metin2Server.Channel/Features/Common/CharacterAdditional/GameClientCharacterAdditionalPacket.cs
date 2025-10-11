@@ -11,7 +11,7 @@ public record GameClientCharacterAdditionalPacket(
     uint GuildId,
     uint Level,
     short Alignment,
-    byte PkMode,
+    CharacterPkMode PkMode,
     uint MountVnum)
 {
     public static int Size() =>

@@ -4,13 +4,13 @@ package m2.banned_word.v1;
 option csharp_namespace = "Metin2Server.Shared.DbContracts";
 
 service BannedWordService {
-  rpc ExistsByWord (ExistsByWordRequest) returns (ExistsByWordResponse);
+  rpc ExistsByWord (ExistsByWordGrpcRequest) returns (ExistsByWordGrpcResponse);
 }
 
-message ExistsByWordRequest {
+message ExistsByWordGrpcRequest {
   string word = 1;
 }
 
-message ExistsByWordResponse {
+message ExistsByWordGrpcResponse {
   bool exists = 1;
 }

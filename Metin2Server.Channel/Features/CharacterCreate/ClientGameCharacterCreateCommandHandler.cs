@@ -15,18 +15,18 @@ public class ClientGameCharacterCreateCommandHandler : IRequestHandler<ClientGam
     private readonly ISessionAccessor _sessionAccessor;
     private readonly BannedWordService.BannedWordServiceClient _bannedWordServiceClient;
     private readonly CharacterService.CharacterServiceClient _characterServiceClient;
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
 
     public ClientGameCharacterCreateCommandHandler(
         ISessionAccessor sessionAccessor,
         BannedWordService.BannedWordServiceClient bannedWordServiceClient,
         CharacterService.CharacterServiceClient characterServiceClient,
-        DbService.DbServiceClient dbServiceClient)
+        AccountService.AccountServiceClient accountServiceClient)
     {
         _sessionAccessor = sessionAccessor;
         _bannedWordServiceClient = bannedWordServiceClient;
         _characterServiceClient = characterServiceClient;
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
     }
 
     public async Task<Unit> Handle(ClientGameCharacterCreateCommand command, CancellationToken cancellationToken)
@@ -41,12 +41,12 @@ public class ClientGameCharacterCreateCommandHandler : IRequestHandler<ClientGam
             return Unit.Value;
         }
 
-        var bannedWordExistsResponse =
+        var existsByWordGrpcResponse =
             await _bannedWordServiceClient.ExistsByWordAsync(
-                new ExistsByWordRequest { Word = command.Name },
+                new ExistsByWordGrpcRequest { Word = command.Name },
                 cancellationToken: cancellationToken);
 
-        if (bannedWordExistsResponse.Exists)
+        if (existsByWordGrpcResponse.Exists)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 1);
 
@@ -67,55 +67,55 @@ public class ClientGameCharacterCreateCommandHandler : IRequestHandler<ClientGam
             return Unit.Value;
         }
 
-        var beginCharacterCreationResponse = await _characterServiceClient.TryBeginCharacterCreationAsync(
-            new TryBeginCharacterCreationRequest { AccountId = currentSession.AccountId.Value },
+        var tryBeginCharacterCreationGrpcResponse = await _characterServiceClient.TryBeginCharacterCreationAsync(
+            new TryBeginCharacterCreationGrpcRequest { AccountId = currentSession.AccountId.Value },
             cancellationToken: cancellationToken);
 
-        if (!beginCharacterCreationResponse.Allowed)
+        if (!tryBeginCharacterCreationGrpcResponse.Allowed)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 0);
 
             return Unit.Value;
         }
 
-        var characterExistsByIndexAndAccountIdResponse = await _characterServiceClient.ExistsByIndexAndAccountIdAsync(
-            new ExistsByIndexAndAccountIdRequest { Index = command.Index, AccountId = currentSession.AccountId.Value },
+        var existsByIndexAndAccountIdGrpcResponse = await _characterServiceClient.ExistsByIndexAndAccountIdAsync(
+            new ExistsByIndexAndAccountIdGrpcRequest { Index = command.Index, AccountId = currentSession.AccountId.Value },
             cancellationToken: cancellationToken);
 
-        if (characterExistsByIndexAndAccountIdResponse.Exists)
+        if (existsByIndexAndAccountIdGrpcResponse.Exists)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 1);
 
             return Unit.Value;
         }
 
-        var characterExistsByNameResponse =
+        var existsByNameGrpcResponse =
             await _characterServiceClient.ExistsByNameAsync(
-                new ExistsByNameRequest { Name = command.Name },
+                new ExistsByNameGrpcRequest { Name = command.Name },
                 cancellationToken: cancellationToken);
 
-        if (characterExistsByNameResponse.Exists)
+        if (existsByNameGrpcResponse.Exists)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 0);
 
             return Unit.Value;
         }
 
-        var getAccountByIdResponse = await _dbServiceClient.GetAccountByIdAsync(
-            new GetAccountByIdRequest { Id = currentSession.AccountId!.Value },
+        var getAccountByIdGrpcResponse = await _accountServiceClient.GetAccountByIdAsync(
+            new GetAccountByIdGrpcRequest { Id = currentSession.AccountId!.Value },
             cancellationToken: cancellationToken);
 
-        if (getAccountByIdResponse.ResultCase == GetAccountByIdResponse.ResultOneofCase.NotFound)
+        if (getAccountByIdGrpcResponse.ResultCase == GetAccountByIdGrpcResponse.ResultOneofCase.NotFound)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 0);
 
             return Unit.Value;
         }
 
-        var createCharacterResponse = await _characterServiceClient.CreateCharacterAsync(
-            new CreateCharacterRequest
+        var createCharacterGrpcResponse = await _characterServiceClient.CreateCharacterAsync(
+            new CreateCharacterGrpcRequest
             {
-                AccountId = getAccountByIdResponse.Account.Id,
+                AccountId = getAccountByIdGrpcResponse.Account.Id,
                 Name = command.Name,
                 Race = command.Race.ToProto(),
                 Shape = command.Shape,
@@ -123,7 +123,7 @@ public class ClientGameCharacterCreateCommandHandler : IRequestHandler<ClientGam
             },
             cancellationToken: cancellationToken);
 
-        if (createCharacterResponse.ResultCase == CreateCharacterResponse.ResultOneofCase.NotFound)
+        if (createCharacterGrpcResponse.ResultCase == CreateCharacterGrpcResponse.ResultOneofCase.NotFound)
         {
             AddCreateFailurePacket(currentPacketOutCollector, 0);
 
@@ -133,7 +133,7 @@ public class ClientGameCharacterCreateCommandHandler : IRequestHandler<ClientGam
         currentPacketOutCollector.Add(
             new GameClientCharacterCreateSuccessPacket(
                 command.Index,
-                SimpleCharacterFactory.FromProto(createCharacterResponse.Character)));
+                SimpleCharacterFactory.FromProto(createCharacterGrpcResponse.Character)));
 
         return Unit.Value;
     }

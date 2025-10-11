@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using Metin2Server.Shared.Common;
+using Metin2Server.Shared.DbContracts.Common;
 using Metin2Server.Shared.Utils;
 
 namespace Metin2Server.Channel.Features.Common.SimpleCharacter.Factory;
 
 public class SimpleCharacterFactory
 {
-    public static Dto.SimpleCharacter FromProto(Shared.DbContracts.Common.Character character) => new(
+    public static Dto.SimpleCharacter FromProto(CharacterGrpc character) => new(
         GrpcUtils.ToUIntChecked(character.Id),
         StringUtils.NormalizeString(character.Name, Constants.CharacterNameMaxLength + 1),
         (byte)character.Race,

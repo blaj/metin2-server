@@ -15,6 +15,7 @@ public class GameCharacter : GameEntity
     public int Z { get; set; }
     public PersitencePoint PersitencePoints { get; set; } = new();
     public RuntimePoint RuntimePoints { get; set; } = new();
+    public CharacterPkMode PkMode { get; set; } = CharacterPkMode.Peace;
     
     public class PersitencePoint
     {
@@ -41,5 +42,6 @@ public class GameCharacter : GameEntity
         public int MaxSp { get; set; }
         public byte BasePart { get; set; }
         public int MaxStamina { get; set; }
+        public Dictionary<ushort, GameItem> Items { get; set; } = new();
     }
 }

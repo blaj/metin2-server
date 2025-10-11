@@ -1,4 +1,5 @@
-﻿using Metin2Server.Shared.Dto;
+﻿using Metin2Server.Shared.DbContracts.Common;
+using Metin2Server.Shared.Dto;
 using Metin2Server.Shared.Enums;
 
 namespace Metin2Server.Shared.Extensions;
@@ -86,21 +87,21 @@ public static class JobExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(job), job, null)
     };
 
-    public static DbContracts.Common.Job ToProto(this Job job) => job switch
+    public static JobGrpc ToProto(this Job job) => job switch
     {
-        Job.Warrior => DbContracts.Common.Job.Warrior,
-        Job.Assassin => DbContracts.Common.Job.Assassin,
-        Job.Sura => DbContracts.Common.Job.Sura,
-        Job.Shaman => DbContracts.Common.Job.Shaman,
-        _ => DbContracts.Common.Job.Warrior
+        Job.Warrior => JobGrpc.Warrior,
+        Job.Assassin => JobGrpc.Assassin,
+        Job.Sura => JobGrpc.Sura,
+        Job.Shaman => JobGrpc.Shaman,
+        _ => JobGrpc.Warrior
     };
 
-    public static Job ToEntity(this DbContracts.Common.Job value) => value switch
+    public static Job ToEntity(this JobGrpc value) => value switch
     {
-        DbContracts.Common.Job.Warrior => Job.Warrior,
-        DbContracts.Common.Job.Assassin => Job.Assassin,
-        DbContracts.Common.Job.Sura => Job.Sura,
-        DbContracts.Common.Job.Shaman => Job.Shaman,
+        JobGrpc.Warrior => Job.Warrior,
+        JobGrpc.Assassin => Job.Assassin,
+        JobGrpc.Sura => Job.Sura,
+        JobGrpc.Shaman => Job.Shaman,
         _ => Job.Warrior
     };
 }

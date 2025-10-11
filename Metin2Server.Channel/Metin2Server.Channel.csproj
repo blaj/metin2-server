@@ -15,7 +15,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Metin2Server.Domain\Metin2Server.Domain.csproj" />
         <ProjectReference Include="..\Metin2Server.Shared\Metin2Server.Shared.csproj" />
         <ProjectReference Include="..\Metin2Server.Network\Metin2Server.Network.csproj"/>
     </ItemGroup>

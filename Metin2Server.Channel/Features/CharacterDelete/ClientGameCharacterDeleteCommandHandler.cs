@@ -10,16 +10,16 @@ namespace Metin2Server.Channel.Features.CharacterDelete;
 public class ClientGameCharacterDeleteCommandHandler : IRequestHandler<ClientGameCharacterDeleteCommand>
 {
     private readonly ISessionAccessor _sessionAccessor;
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
     private readonly CharacterService.CharacterServiceClient _characterServiceClient;
 
     public ClientGameCharacterDeleteCommandHandler(
         ISessionAccessor sessionAccessor,
-        DbService.DbServiceClient dbServiceClient,
+        AccountService.AccountServiceClient accountServiceClient,
         CharacterService.CharacterServiceClient characterServiceClient)
     {
         _sessionAccessor = sessionAccessor;
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
         _characterServiceClient = characterServiceClient;
     }
 
@@ -28,51 +28,51 @@ public class ClientGameCharacterDeleteCommandHandler : IRequestHandler<ClientGam
         var currentSession = _sessionAccessor.Current;
         var currentPacketOutCollector = _sessionAccessor.CurrentPacketOutCollector;
 
-        var getPrivateCodeResponse = await _dbServiceClient.GetPrivateCodeByIdAsync(
-            new GetPrivateCodeByIdRequest
+        var getPrivateCodeByIdGrpcResponse = await _accountServiceClient.GetPrivateCodeByIdAsync(
+            new GetPrivateCodeByIdGrpcRequest
             {
                 Id = currentSession.AccountId!.Value
             },
             cancellationToken: cancellationToken);
 
-        if (getPrivateCodeResponse.ResultCase == GetPrivateCodeByIdResponse.ResultOneofCase.NotFound)
+        if (getPrivateCodeByIdGrpcResponse.ResultCase == GetPrivateCodeByIdGrpcResponse.ResultOneofCase.NotFound)
         {
             return AddDeleteFailurePacket(currentPacketOutCollector);
         }
 
-        var getCharacterLevelResponse = await _characterServiceClient.GetCharacterLevelByAccountIdAndIndexAsync(
-            new GetCharacterLevelByAccountIdAndIndexRequest
+        var getCharacterLevelByAccountIdAndIndexGrpcResponse = await _characterServiceClient.GetCharacterLevelByAccountIdAndIndexAsync(
+            new GetCharacterLevelByAccountIdAndIndexGrpcRequest
             {
                 AccountId = currentSession.AccountId!.Value,
                 Index = command.Index
             },
             cancellationToken: cancellationToken);
 
-        if (getCharacterLevelResponse.ResultCase ==
-            GetCharacterLevelByAccountIdAndIndexResponse.ResultOneofCase.NotFound)
+        if (getCharacterLevelByAccountIdAndIndexGrpcResponse.ResultCase ==
+            GetCharacterLevelByAccountIdAndIndexGrpcResponse.ResultOneofCase.NotFound)
         {
             return AddDeleteFailurePacket(currentPacketOutCollector);
         }
 
-        if (getCharacterLevelResponse.Level > Constants.CharacterDeleteLevelLimit)
+        if (getCharacterLevelByAccountIdAndIndexGrpcResponse.Level > Constants.CharacterDeleteLevelLimit)
         {
             return AddDeleteFailurePacket(currentPacketOutCollector);
         }
 
-        if (getPrivateCodeResponse.PrivateCode != command.PrivateCode)
+        if (getPrivateCodeByIdGrpcResponse.PrivateCode != command.PrivateCode)
         {
             return AddDeleteFailurePacket(currentPacketOutCollector);
         }
 
-        var deleteCharacterResponse = await _characterServiceClient.DeleteCharacterByAccountIdAndIndexAsync(
-            new DeleteCharacterByAccountIdAndIndexRequest
+        var deleteCharacterByAccountIdAndIndexGrpcResponse = await _characterServiceClient.DeleteCharacterByAccountIdAndIndexAsync(
+            new DeleteCharacterByAccountIdAndIndexGrpcRequest
             {
                 AccountId = currentSession.AccountId.Value,
                 Index = command.Index
             },
             cancellationToken: cancellationToken);
 
-        if (!deleteCharacterResponse.Success)
+        if (!deleteCharacterByAccountIdAndIndexGrpcResponse.Success)
         {
             return AddDeleteFailurePacket(currentPacketOutCollector);
         }

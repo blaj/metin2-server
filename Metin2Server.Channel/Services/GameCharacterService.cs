@@ -5,7 +5,6 @@ using Metin2Server.Shared.Enums;
 using Metin2Server.Shared.Extensions;
 using Metin2Server.Shared.Utils;
 using Microsoft.Extensions.Logging;
-using Empire = Metin2Server.Shared.DbContracts.Common.Empire;
 
 namespace Metin2Server.Channel.Services;
 
@@ -25,7 +24,7 @@ public class GameCharacterService
         _logger = logger;
     }
 
-    public GameCharacter? CreateGameCharacter(Character character, Empire empire, ISessionContext sessionContext)
+    public GameCharacter? CreateGameCharacter(CharacterGrpc character, EmpireGrpc empire, ISessionContext sessionContext)
     {
         if (sessionContext.AccountId == null)
         {

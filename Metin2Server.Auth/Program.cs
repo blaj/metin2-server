@@ -39,7 +39,7 @@ public class Program
             {
                 services.AddLogging(config => config.AddSerilog());
 
-                services.AddGrpcClient<DbService.DbServiceClient>("DbClient",
+                services.AddGrpcClient<AccountService.AccountServiceClient>("AccountClient",
                     options =>
                     {
                         options.Address =

@@ -8,93 +8,93 @@ import "Common/Models.proto";
 option csharp_namespace = "Metin2Server.Shared.DbContracts";
 
 service CharacterService {
-  rpc TryBeginCharacterCreation (TryBeginCharacterCreationRequest) returns (TryBeginCharacterCreationResponse);
-  rpc ExistsByIndexAndAccountId (ExistsByIndexAndAccountIdRequest) returns (ExistsByIndexAndAccountIdResponse);
-  rpc ExistsByName (ExistsByNameRequest) returns (ExistsByNameResponse);
-  rpc CreateCharacter (CreateCharacterRequest) returns (CreateCharacterResponse);
-  rpc GetCharactersByAccountId (GetCharactersByAccountIdRequest) returns (GetCharactersByAccountIdResponse);
-  rpc GetCharacterLevelByAccountIdAndIndex (GetCharacterLevelByAccountIdAndIndexRequest) returns (GetCharacterLevelByAccountIdAndIndexResponse);
-  rpc DeleteCharacterByAccountIdAndIndex (DeleteCharacterByAccountIdAndIndexRequest) returns (DeleteCharacterByAccountIdAndIndexResponse);
-  rpc GetCharacterByAccountIdAndIndex (GetCharacterByAccountIdAndIndexRequest) returns (GetCharacterByAccountIdAndIndexResponse);
+  rpc TryBeginCharacterCreation (TryBeginCharacterCreationGrpcRequest) returns (TryBeginCharacterCreationGrpcResponse);
+  rpc ExistsByIndexAndAccountId (ExistsByIndexAndAccountIdGrpcRequest) returns (ExistsByIndexAndAccountIdGrpcResponse);
+  rpc ExistsByName (ExistsByNameGrpcRequest) returns (ExistsByNameGrpcResponse);
+  rpc CreateCharacter (CreateCharacterGrpcRequest) returns (CreateCharacterGrpcResponse);
+  rpc GetCharactersByAccountId (GetCharactersByAccountIdGrpcRequest) returns (GetCharactersByAccountIdGrpcResponse);
+  rpc GetCharacterLevelByAccountIdAndIndex (GetCharacterLevelByAccountIdAndIndexGrpcRequest) returns (GetCharacterLevelByAccountIdAndIndexGrpcResponse);
+  rpc DeleteCharacterByAccountIdAndIndex (DeleteCharacterByAccountIdAndIndexGrpcRequest) returns (DeleteCharacterByAccountIdAndIndexGrpcResponse);
+  rpc GetCharacterByAccountIdAndIndex (GetCharacterByAccountIdAndIndexGrpcRequest) returns (GetCharacterByAccountIdAndIndexGrpcResponse);
 }
 
-message TryBeginCharacterCreationRequest {
+message TryBeginCharacterCreationGrpcRequest {
   int64 account_id = 1;
 }
 
-message TryBeginCharacterCreationResponse {
+message TryBeginCharacterCreationGrpcResponse {
   bool allowed = 1;
 }
 
-message ExistsByIndexAndAccountIdRequest {
+message ExistsByIndexAndAccountIdGrpcRequest {
   int64 account_id = 1;
   int32 index = 2;
 }
 
-message ExistsByIndexAndAccountIdResponse {
+message ExistsByIndexAndAccountIdGrpcResponse {
   bool exists = 1;
 }
 
-message ExistsByNameRequest {
+message ExistsByNameGrpcRequest {
   string name = 1;
 }
 
-message ExistsByNameResponse {
+message ExistsByNameGrpcResponse {
   bool exists = 1;
 }
 
-message CreateCharacterRequest{
+message CreateCharacterGrpcRequest{
   int64 account_id = 1;
   string name = 2;
-  m2.common.v1.Race race = 3;
+  m2.common.v1.RaceGrpc race = 3;
   int32 shape = 4;
   uint32 index = 5;
 }
 
-message CreateCharacterResponse {
+message CreateCharacterGrpcResponse {
   oneof result {
-    m2.common.v1.Character character = 1;
+    m2.common.v1.CharacterGrpc character = 1;
     google.protobuf.Empty not_found = 2;
   }
 }
 
-message GetCharactersByAccountIdRequest {
+message GetCharactersByAccountIdGrpcRequest {
   int64 account_id = 1;
 }
 
-message GetCharactersByAccountIdResponse {
-  repeated m2.common.v1.Character characters = 1;
+message GetCharactersByAccountIdGrpcResponse {
+  repeated m2.common.v1.CharacterGrpc characters = 1;
 }
 
-message GetCharacterLevelByAccountIdAndIndexRequest {
+message GetCharacterLevelByAccountIdAndIndexGrpcRequest {
   int64 account_id = 1;
   uint32 index = 2;
 }
 
-message GetCharacterLevelByAccountIdAndIndexResponse {
+message GetCharacterLevelByAccountIdAndIndexGrpcResponse {
   oneof result {
     uint32 level = 1;
     google.protobuf.Empty not_found = 2;
   }
 }
 
-message DeleteCharacterByAccountIdAndIndexRequest {
+message DeleteCharacterByAccountIdAndIndexGrpcRequest {
   int64 account_id = 1;
   uint32 index = 2;
 }
 
-message DeleteCharacterByAccountIdAndIndexResponse {
+message DeleteCharacterByAccountIdAndIndexGrpcResponse {
   bool success = 1;
 }
 
-message GetCharacterByAccountIdAndIndexRequest {
+message GetCharacterByAccountIdAndIndexGrpcRequest {
   int64 account_id = 1;
   uint32 index = 2;
 }
 
-message GetCharacterByAccountIdAndIndexResponse {
+message GetCharacterByAccountIdAndIndexGrpcResponse {
   oneof result {
-    m2.common.v1.Character character = 1;
+    m2.common.v1.CharacterGrpc character = 1;
     google.protobuf.Empty not_found = 2;
   }
 }

@@ -5,6 +5,7 @@ using Metin2Server.Shared.Application;
 using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Common;
 using Metin2Server.Shared.DbContracts;
+using Metin2Server.Shared.DbContracts.Common;
 using Metin2Server.Shared.Protocol;
 using Metin2Server.Shared.Utils;
 
@@ -12,14 +13,14 @@ namespace Metin2Server.Channel.Features.Empire;
 
 public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCommand>
 {
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
     private readonly ISessionAccessor _sessionAccessor;
 
     public ClientGameEmpireCommandHandler(
-        DbService.DbServiceClient dbServiceClient,
+        AccountService.AccountServiceClient accountServiceClient,
         ISessionAccessor sessionAccessor)
     {
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
         _sessionAccessor = sessionAccessor;
     }
 
@@ -36,11 +37,11 @@ public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCo
                 SessionPhase.Closing);
         }
 
-        var getAccountByIdResponse = await _dbServiceClient.GetAccountByIdAsync(
-            new GetAccountByIdRequest { Id = currentSession.AccountId.Value },
+        var getAccountByIdGrpcResponse = await _accountServiceClient.GetAccountByIdAsync(
+            new GetAccountByIdGrpcRequest { Id = currentSession.AccountId.Value },
             cancellationToken: cancellationToken);
 
-        if (getAccountByIdResponse.ResultCase == GetAccountByIdResponse.ResultOneofCase.NotFound)
+        if (getAccountByIdGrpcResponse.ResultCase == GetAccountByIdGrpcResponse.ResultOneofCase.NotFound)
         {
             return GameClientPhasePacketUtils.AddToPacketCollector(
                 currentSession, 
@@ -48,12 +49,12 @@ public class ClientGameEmpireCommandHandler : IRequestHandler<ClientGameEmpireCo
                 SessionPhase.Closing);
         }
 
-        var changeAccountEmpireResponse = await _dbServiceClient.ChangeAccountEmpireAsync(
-            new ChangeAccountEmpireRequest
-                { Id = getAccountByIdResponse.Account.Id, Empire = (Shared.DbContracts.Common.Empire)command.Empire },
+        var changeAccountEmpireGrpcResponse = await _accountServiceClient.ChangeAccountEmpireAsync(
+            new ChangeAccountEmpireGrpcRequest
+                { Id = getAccountByIdGrpcResponse.Account.Id, Empire = (EmpireGrpc)command.Empire },
             cancellationToken: cancellationToken);
 
-        if (!changeAccountEmpireResponse.Ok)
+        if (!changeAccountEmpireGrpcResponse.Ok)
         {
             return GameClientPhasePacketUtils.AddToPacketCollector(
                 currentSession, 

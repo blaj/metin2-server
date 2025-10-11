@@ -1,5 +1,5 @@
-﻿using Metin2Server.Domain.Entities;
-using Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Database.Domain.Entities;
+using Metin2Server.Database.Domain.Repositories;
 using Metin2Server.Shared.Enums;
 using StackExchange.Redis;
 

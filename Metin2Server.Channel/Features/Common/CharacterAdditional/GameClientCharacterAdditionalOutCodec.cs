@@ -36,7 +36,7 @@ public class GameClientCharacterAdditionalOutCodec : IPacketOutCodec<GameClientC
         BinaryPrimitives.WriteInt16LittleEndian(span.Slice(offset, sizeof(short)), packet.Alignment);
         offset += sizeof(short);
 
-        span[offset++] = packet.PkMode;
+        span[offset++] = (byte) packet.PkMode;
         
         BinaryPrimitives.WriteUInt32LittleEndian(span.Slice(offset, sizeof(uint)), packet.MountVnum);
         

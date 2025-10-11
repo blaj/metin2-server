@@ -1,4 +1,4 @@
-﻿using Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Database.Domain.Repositories;
 using StackExchange.Redis;
 
 namespace Metin2Server.Database.Repositories;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Metin2Server.Domain.Entities.Owneds;
+using Metin2Server.Database.Domain.Entities.Owneds;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 

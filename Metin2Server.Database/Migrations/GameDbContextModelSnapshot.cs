@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Metin2Server.Database.Data;
-using Metin2Server.Domain.Entities.Owneds;
+using Metin2Server.Database.Domain.Entities.Owneds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

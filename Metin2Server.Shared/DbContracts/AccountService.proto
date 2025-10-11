@@ -1,0 +1,64 @@
+syntax = "proto3";
+package m2.db.v1;
+
+import "google/protobuf/empty.proto";
+import "Common/Enums.proto";
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service AccountService {
+  rpc GetAccountByLogin (GetAccountByLoginGrpcRequest) returns (GetAccountByLoginGrpcResponse);
+  rpc GetAccountById (GetAccountByIdGrpcRequest) returns (GetAccountByIdGrpcResponse);
+  rpc ChangeAccountEmpire (ChangeAccountEmpireGrpcRequest) returns (ChangeAccountEmpireGrpcResponse);
+  rpc GetPrivateCodeById (GetPrivateCodeByIdGrpcRequest) returns (GetPrivateCodeByIdGrpcResponse);
+}
+
+message GetAccountByLoginGrpcRequest {
+  string login = 1;
+}
+
+message GetAccountByLoginGrpcResponse {
+  oneof result {
+    AccountGrpc account = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message GetAccountByIdGrpcRequest {
+  int64 id = 1;
+}
+
+message GetAccountByIdGrpcResponse {
+  oneof result {
+    AccountGrpc account = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message ChangeAccountEmpireGrpcRequest {
+  int64 id = 1;
+  m2.common.v1.EmpireGrpc empire = 2;
+}
+
+message ChangeAccountEmpireGrpcResponse {
+  bool ok = 1;
+}
+
+message GetPrivateCodeByIdGrpcRequest {
+  int64 id = 1;
+}
+
+message GetPrivateCodeByIdGrpcResponse {
+  oneof result {
+    string private_code = 1;
+    google.protobuf.Empty not_found = 2;
+  }
+}
+
+message AccountGrpc {
+  int64 id = 1;
+  string username = 2;
+  string password = 3;
+  bool is_active = 4;
+  m2.common.v1.EmpireGrpc empire = 5;
+}

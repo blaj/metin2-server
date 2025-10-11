@@ -20,10 +20,12 @@
     <ItemGroup>
         <Protobuf Include="DbContracts/Common/Enums.proto" GrpcServices="None" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/Common/Models.proto" GrpcServices="None" ProtoRoot="DbContracts" />
-        <Protobuf Include="DbContracts/DbService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/AccountService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/LoginKeyService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/BannedWordService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/CharacterService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
         <Protobuf Include="DbContracts/ChannelInformationService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/CharacterItemService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
+        <Protobuf Include="DbContracts/ItemDefinitionService.proto" GrpcServices="Both" ProtoRoot="DbContracts" />
     </ItemGroup>
 </Project>

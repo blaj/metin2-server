@@ -52,7 +52,7 @@ public class ChannelInformationBackgroundService : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await _channelInformationServiceClient.RemoveChannelInformationAsync(
-            new RemoveChannelInformationRequest { Port = _port },
+            new RemoveChannelInformationGrpcRequest { Port = _port },
             cancellationToken: cancellationToken);
 
         await base.StopAsync(cancellationToken);
@@ -83,9 +83,9 @@ public class ChannelInformationBackgroundService : BackgroundService
 
         try
         {
-            await _channelInformationServiceClient.SendChannelInformationAsync(new SendChannelInformationRequest
+            await _channelInformationServiceClient.SendChannelInformationAsync(new SendChannelInformationGrpcRequest
             {
-                ChannelInformation = new ChannelInformation
+                ChannelInformation = new ChannelInformationGrpc
                 {
                     Port = _port,
                     ServerIndex = _serverIndex,

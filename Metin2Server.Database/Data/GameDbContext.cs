@@ -1,6 +1,6 @@
-﻿using Metin2Server.Database.Interceptors;
-using Metin2Server.Domain.Entities;
-using Metin2Server.Domain.Repositories;
+﻿using Metin2Server.Database.Domain.Entities;
+using Metin2Server.Database.Domain.Repositories;
+using Metin2Server.Database.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace Metin2Server.Database.Data;

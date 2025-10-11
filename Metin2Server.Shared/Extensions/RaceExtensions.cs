@@ -1,4 +1,5 @@
-﻿using Metin2Server.Shared.Enums;
+﻿using Metin2Server.Shared.DbContracts.Common;
+using Metin2Server.Shared.Enums;
 
 namespace Metin2Server.Shared.Extensions;
 
@@ -17,29 +18,29 @@ public static class RaceExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(race), race, null)
     };
 
-    public static DbContracts.Common.Race ToProto(this Race race) => race switch
+    public static RaceGrpc ToProto(this Race race) => race switch
     {
-        Race.WarriorM => DbContracts.Common.Race.WarriorM,
-        Race.WarriorW => DbContracts.Common.Race.WarriorW,
-        Race.AssassinM => DbContracts.Common.Race.AssassinM,
-        Race.AssassinW => DbContracts.Common.Race.AssassinW,
-        Race.SuraM => DbContracts.Common.Race.SuraM,
-        Race.SuraW => DbContracts.Common.Race.SuraW,
-        Race.ShamanM => DbContracts.Common.Race.ShamanM,
-        Race.ShamanW => DbContracts.Common.Race.ShamanW,
-        _ => DbContracts.Common.Race.WarriorM
+        Race.WarriorM => RaceGrpc.WarriorM,
+        Race.WarriorW => RaceGrpc.WarriorW,
+        Race.AssassinM => RaceGrpc.AssassinM,
+        Race.AssassinW => RaceGrpc.AssassinW,
+        Race.SuraM => RaceGrpc.SuraM,
+        Race.SuraW => RaceGrpc.SuraW,
+        Race.ShamanM => RaceGrpc.ShamanM,
+        Race.ShamanW => RaceGrpc.ShamanW,
+        _ => RaceGrpc.WarriorM
     };
 
-    public static Race ToEntity(this DbContracts.Common.Race race) => race switch
+    public static Race ToEntity(this RaceGrpc race) => race switch
     {
-        DbContracts.Common.Race.WarriorM => Race.WarriorM,
-        DbContracts.Common.Race.WarriorW => Race.WarriorW,
-        DbContracts.Common.Race.AssassinM => Race.AssassinM,
-        DbContracts.Common.Race.AssassinW => Race.AssassinW,
-        DbContracts.Common.Race.SuraM => Race.SuraM,
-        DbContracts.Common.Race.SuraW => Race.SuraW,
-        DbContracts.Common.Race.ShamanM => Race.ShamanM,
-        DbContracts.Common.Race.ShamanW => Race.ShamanW,
+        RaceGrpc.WarriorM => Race.WarriorM,
+        RaceGrpc.WarriorW => Race.WarriorW,
+        RaceGrpc.AssassinM => Race.AssassinM,
+        RaceGrpc.AssassinW => Race.AssassinW,
+        RaceGrpc.SuraM => Race.SuraM,
+        RaceGrpc.SuraW => Race.SuraW,
+        RaceGrpc.ShamanM => Race.ShamanM,
+        RaceGrpc.ShamanW => Race.ShamanW,
         _ => Race.WarriorM
     };
 }

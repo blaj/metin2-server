@@ -7,6 +7,7 @@ using Metin2Server.Shared.Application.LoginFailure;
 using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Common;
 using Metin2Server.Shared.DbContracts;
+using Metin2Server.Shared.DbContracts.Common;
 using Metin2Server.Shared.Protocol;
 using Metin2Server.Shared.Utils;
 
@@ -14,18 +15,18 @@ namespace Metin2Server.Channel.Features.Login2;
 
 public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Command>
 {
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
     private readonly LoginKeyService.LoginKeyServiceClient _loginKeyServiceClient;
     private readonly CharacterService.CharacterServiceClient _characterServiceClient;
     private readonly ISessionAccessor _sessionAccessor;
 
     public ClientGameLogin2CommandHandler(
-        DbService.DbServiceClient dbServiceClient,
+        AccountService.AccountServiceClient accountServiceClient,
         LoginKeyService.LoginKeyServiceClient loginKeyServiceClient,
         CharacterService.CharacterServiceClient characterServiceClient,
         ISessionAccessor sessionAccessor)
     {
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
         _loginKeyServiceClient = loginKeyServiceClient;
         _characterServiceClient = characterServiceClient;
         _sessionAccessor = sessionAccessor;
@@ -36,12 +37,12 @@ public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Co
         var currentSession = _sessionAccessor.Current;
         var currentPacketOutCollector = _sessionAccessor.CurrentPacketOutCollector;
 
-        var getAccountByLoginResponse =
-            await _dbServiceClient.GetAccountByLoginAsync(
-                new GetAccountByLoginRequest() { Login = command.Username },
+        var getAccountByLoginGrpcResponse =
+            await _accountServiceClient.GetAccountByLoginAsync(
+                new GetAccountByLoginGrpcRequest { Login = command.Username },
                 cancellationToken: cancellationToken);
 
-        if (getAccountByLoginResponse.ResultCase == GetAccountByLoginResponse.ResultOneofCase.NotFound)
+        if (getAccountByLoginGrpcResponse.ResultCase == GetAccountByLoginGrpcResponse.ResultOneofCase.NotFound)
         {
             currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOID"));
 
@@ -63,21 +64,21 @@ public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Co
         // }
 
         currentSession.LoginKey = command.LoginKey;
-        currentSession.AccountId = getAccountByLoginResponse.Account.Id;
+        currentSession.AccountId = getAccountByLoginGrpcResponse.Account.Id;
 
-        if (getAccountByLoginResponse.Account.Empire == Shared.DbContracts.Common.Empire.Unknown)
+        if (getAccountByLoginGrpcResponse.Account.Empire == EmpireGrpc.Unknown)
         {
             var empire = (Shared.Enums.Empire)Random.Shared.Next(1, 3);
 
-            var changeAccountEmpireResponse = await _dbServiceClient.ChangeAccountEmpireAsync(
-                new ChangeAccountEmpireRequest
+            var changeAccountEmpireGrpcResponse = await _accountServiceClient.ChangeAccountEmpireAsync(
+                new ChangeAccountEmpireGrpcRequest
                 {
-                    Id = getAccountByLoginResponse.Account.Id,
-                    Empire = (Shared.DbContracts.Common.Empire)empire
+                    Id = getAccountByLoginGrpcResponse.Account.Id,
+                    Empire = (EmpireGrpc)empire
                 },
                 cancellationToken: cancellationToken);
 
-            if (!changeAccountEmpireResponse.Ok)
+            if (!changeAccountEmpireGrpcResponse.Ok)
             {
                 currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOID"));
 
@@ -92,9 +93,9 @@ public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Co
         currentSession.Phase = SessionPhase.SelectCharacter;
         currentPacketOutCollector.Add(new GameClientPhasePacket(PhaseWireMapper.Map(currentSession.Phase)));
 
-        var getCharactersByAccountIdResponse =
+        var getCharactersByAccountIdGrpcResponse =
             await _characterServiceClient.GetCharactersByAccountIdAsync(
-                new GetCharactersByAccountIdRequest { AccountId = getAccountByLoginResponse.Account.Id },
+                new GetCharactersByAccountIdGrpcRequest { AccountId = getAccountByLoginGrpcResponse.Account.Id },
                 cancellationToken: cancellationToken);
         
         var characters = new[]
@@ -105,7 +106,7 @@ public class ClientGameLogin2CommandHandler : IRequestHandler<ClientGameLogin2Co
             SimpleCharacterFactory.Empty()
         };
 
-        foreach (var character in getCharactersByAccountIdResponse.Characters)
+        foreach (var character in getCharactersByAccountIdGrpcResponse.Characters)
         {
             if (character.Index < 0 || character.Index >= characters.Length)
             {

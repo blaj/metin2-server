@@ -10,18 +10,18 @@ namespace Metin2Server.Auth.Features.Login3;
 
 public class ClientGameLogin3CommandHandler : IRequestHandler<ClientGameLogin3Command>
 {
-    private readonly DbService.DbServiceClient _dbServiceClient;
+    private readonly AccountService.AccountServiceClient _accountServiceClient;
     private readonly LoginKeyService.LoginKeyServiceClient _loginKeyServiceClient;
     private readonly PasswordHasherService _passwordHasherService;
     private readonly ISessionAccessor _sessionAccessor;
 
     public ClientGameLogin3CommandHandler(
-        DbService.DbServiceClient dbServiceClient,
+        AccountService.AccountServiceClient accountServiceClient,
         LoginKeyService.LoginKeyServiceClient loginKeyServiceClient,
         PasswordHasherService passwordHasherService,
         ISessionAccessor sessionAccessor)
     {
-        _dbServiceClient = dbServiceClient;
+        _accountServiceClient = accountServiceClient;
         _loginKeyServiceClient = loginKeyServiceClient;
         _passwordHasherService = passwordHasherService;
         _sessionAccessor = sessionAccessor;
@@ -38,26 +38,26 @@ public class ClientGameLogin3CommandHandler : IRequestHandler<ClientGameLogin3Co
             return Unit.Value;
         }
 
-        var getAccountByLoginResponse =
-            await _dbServiceClient.GetAccountByLoginAsync(
-                new GetAccountByLoginRequest() { Login = command.Username },
+        var getAccountByLoginGrpcResponse =
+            await _accountServiceClient.GetAccountByLoginAsync(
+                new GetAccountByLoginGrpcRequest() { Login = command.Username },
                 cancellationToken: cancellationToken);
 
-        if (getAccountByLoginResponse.ResultCase == GetAccountByLoginResponse.ResultOneofCase.NotFound)
+        if (getAccountByLoginGrpcResponse.ResultCase == GetAccountByLoginGrpcResponse.ResultOneofCase.NotFound)
         {
             currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOID"));
 
             return Unit.Value;
         }
 
-        if (!getAccountByLoginResponse.Account.IsActive)
+        if (!getAccountByLoginGrpcResponse.Account.IsActive)
         {
             currentPacketOutCollector.Add(new GameClientLoginFailurePacket("NOTAVAIL"));
 
             return Unit.Value;
         }
 
-        if (!_passwordHasherService.Verify(command.Password, getAccountByLoginResponse.Account.Password))
+        if (!_passwordHasherService.Verify(command.Password, getAccountByLoginGrpcResponse.Account.Password))
         {
             currentPacketOutCollector.Add(new GameClientLoginFailurePacket("WRONGPWD"));
 
@@ -66,16 +66,16 @@ public class ClientGameLogin3CommandHandler : IRequestHandler<ClientGameLogin3Co
 
         var currentSession = _sessionAccessor.Current;
 
-        var issueLoginKeyResponse = await _loginKeyServiceClient.IssueAsync(
-            new IssueLoginKeyRequest
+        var issueLoginKeyGrpcResponse = await _loginKeyServiceClient.IssueAsync(
+            new IssueLoginKeyGrpcRequest
             {
-                AccountId = getAccountByLoginResponse.Account.Id,
+                AccountId = getAccountByLoginGrpcResponse.Account.Id,
                 IssuedSessionId = currentSession.Id,
                 TtlSeconds = 60
             },
             cancellationToken: cancellationToken);
 
-        var loginKey = issueLoginKeyResponse.Key;
+        var loginKey = issueLoginKeyGrpcResponse.Key;
         currentSession.LoginKey = loginKey;
 
         currentPacketOutCollector.Add(new GameClientAuthSuccessPacket(loginKey, 1));

@@ -16,4 +16,5 @@ public enum ItemWearFlag : uint
     Hair = (1 << 10),
     Ability = (1 << 11),
     CostumeBody = (1 << 12),
+    Belt = (1 << 13),
 }

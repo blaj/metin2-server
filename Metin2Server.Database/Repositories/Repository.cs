@@ -1,6 +1,6 @@
 ﻿using Metin2Server.Database.Data;
-using Metin2Server.Domain.Entities;
-using Metin2Server.Domain.Repositories;
+using Metin2Server.Database.Domain.Entities;
+using Metin2Server.Database.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Metin2Server.Database.Repositories;

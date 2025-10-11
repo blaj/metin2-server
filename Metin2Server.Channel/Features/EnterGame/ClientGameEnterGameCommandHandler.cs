@@ -7,6 +7,7 @@ using Metin2Server.Channel.Features.Common.Time;
 using Metin2Server.Shared.Application;
 using Metin2Server.Shared.Application.Phase;
 using Metin2Server.Shared.Common;
+using Metin2Server.Shared.DbContracts;
 using Metin2Server.Shared.Enums;
 using Metin2Server.Shared.Protocol;
 using Metin2Server.Shared.Utils;
@@ -16,10 +17,14 @@ namespace Metin2Server.Channel.Features.EnterGame;
 public class ClientGameEnterGameCommandHandler : IRequestHandler<ClientGameEnterGameCommand>
 {
     private readonly ISessionAccessor _sessionAccessor;
+    private readonly CharacterItemService.CharacterItemServiceClient _characterItemServiceClient;
 
-    public ClientGameEnterGameCommandHandler(ISessionAccessor sessionAccessor)
+    public ClientGameEnterGameCommandHandler(
+        ISessionAccessor sessionAccessor,
+        CharacterItemService.CharacterItemServiceClient characterItemServiceClient)
     {
         _sessionAccessor = sessionAccessor;
+        _characterItemServiceClient = characterItemServiceClient;
     }
 
     public async Task<Unit> Handle(ClientGameEnterGameCommand request, CancellationToken cancellationToken)
@@ -42,6 +47,12 @@ public class ClientGameEnterGameCommandHandler : IRequestHandler<ClientGameEnter
         
         var gameCharacter = currentSession.GameCharacter;
 
+        var s = await _characterItemServiceClient.GetCharacterItemsByCharacterIdAndAccountIdAsync(new GetCharacterItemsByCharacterIdAndAccountIdGrpcRequest
+        {
+            CharacterId = gameCharacter.CharacterId,
+            AccountId = currentSession.AccountId!.Value
+        }, cancellationToken: cancellationToken);
+        
         currentPacketOutCollector.Add(new GameClientCharacterAddPacket(
             gameCharacter.Vid,
             0,
@@ -63,7 +74,7 @@ public class ClientGameEnterGameCommandHandler : IRequestHandler<ClientGameEnter
             0,
             gameCharacter.PersitencePoints.Level,
             0,
-            0,
+            CharacterPkMode.Peace,
             0));
         
         currentPacketOutCollector.Add(new GameClientSkillLevelPacket(new int[255]));

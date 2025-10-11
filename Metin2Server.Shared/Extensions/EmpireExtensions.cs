@@ -1,4 +1,5 @@
-﻿using Metin2Server.Shared.Dto;
+﻿using Metin2Server.Shared.DbContracts.Common;
+using Metin2Server.Shared.Dto;
 using Metin2Server.Shared.Enums;
 
 namespace Metin2Server.Shared.Extensions;
@@ -13,19 +14,19 @@ public static class EmpireExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(empire), empire, null)
     };
 
-    public static DbContracts.Common.Empire ToProto(this Empire empire) => empire switch
+    public static EmpireGrpc ToProto(this Empire empire) => empire switch
     {
-        Empire.Shinsoo => DbContracts.Common.Empire.Shinsoo,
-        Empire.Chunjo => DbContracts.Common.Empire.Chunjo,
-        Empire.Jinno => DbContracts.Common.Empire.Jinno,
-        _ => DbContracts.Common.Empire.Unknown
+        Empire.Shinsoo => EmpireGrpc.Shinsoo,
+        Empire.Chunjo => EmpireGrpc.Chunjo,
+        Empire.Jinno => EmpireGrpc.Jinno,
+        _ => EmpireGrpc.Unknown
     };
 
-    public static Empire ToEntity(this DbContracts.Common.Empire value) => value switch
+    public static Empire ToEntity(this EmpireGrpc value) => value switch
     {
-        DbContracts.Common.Empire.Shinsoo => Empire.Shinsoo,
-        DbContracts.Common.Empire.Chunjo => Empire.Chunjo,
-        DbContracts.Common.Empire.Jinno => Empire.Jinno,
+        EmpireGrpc.Shinsoo => Empire.Shinsoo,
+        EmpireGrpc.Chunjo => Empire.Chunjo,
+        EmpireGrpc.Jinno => Empire.Jinno,
         _ => Empire.Shinsoo
     };
 }

@@ -1,4 +1,4 @@
-﻿using Metin2Server.Domain.Entities;
+﻿using Metin2Server.Database.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;

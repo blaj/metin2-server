@@ -24,6 +24,7 @@ using Metin2Server.Channel.Features.Login2;
 using Metin2Server.Channel.Features.MarkLogin;
 using Metin2Server.Channel.Features.Move;
 using Metin2Server.Channel.Features.StateChecker;
+using Metin2Server.Channel.Items;
 using Metin2Server.Channel.Services;
 using Metin2Server.Network;
 using Metin2Server.Shared.Application;
@@ -63,7 +64,7 @@ public class Program
             {
                 services.AddLogging(config => config.AddSerilog());
 
-                services.AddGrpcClient<DbService.DbServiceClient>("DbClient",
+                services.AddGrpcClient<AccountService.AccountServiceClient>("AccountClient",
                     options =>
                     {
                         options.Address =
@@ -128,6 +129,7 @@ public class Program
                 });
                 services.AddSingleton<GameCharacterStore>();
                 services.AddSingleton<GameCharacterService>();
+                services.AddSingleton<ItemService>();
 
                 services.AddSingleton<GameClientHandshakeOutCodec>();
                 services.AddSingleton<GameClientPhaseOutCodec>();

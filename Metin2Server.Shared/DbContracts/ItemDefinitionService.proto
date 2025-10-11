@@ -1,0 +1,8 @@
+syntax = "proto3";
+package m2.item_definition.v1;
+
+option csharp_namespace = "Metin2Server.Shared.DbContracts";
+
+service ItemDefinitionService {
+  
+}

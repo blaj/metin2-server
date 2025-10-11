@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metin2Server.Channel", "Metin2Server.Channel\Metin2Server.Channel.csproj", "{87B26D87-B852-469D-81EE-6EF37A4931B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metin2Server.Domain", "Metin2Server.Domain\Metin2Server.Domain.csproj", "{BF32D200-62BC-4062-82F5-0F198B8DFA14}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metin2Server.Network", "Metin2Server.Network\Metin2Server.Network.csproj", "{C64C3E77-1381-47AE-BB7A-8C57DE42FE17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metin2Server.Shared", "Metin2Server.Shared\Metin2Server.Shared.csproj", "{A0B2D633-0B46-4467-80D5-21F1FA926125}"
@@ -22,10 +20,6 @@ Global
 		{87B26D87-B852-469D-81EE-6EF37A4931B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87B26D87-B852-469D-81EE-6EF37A4931B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87B26D87-B852-469D-81EE-6EF37A4931B5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF32D200-62BC-4062-82F5-0F198B8DFA14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF32D200-62BC-4062-82F5-0F198B8DFA14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF32D200-62BC-4062-82F5-0F198B8DFA14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BF32D200-62BC-4062-82F5-0F198B8DFA14}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C64C3E77-1381-47AE-BB7A-8C57DE42FE17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C64C3E77-1381-47AE-BB7A-8C57DE42FE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C64C3E77-1381-47AE-BB7A-8C57DE42FE17}.Release|Any CPU.ActiveCfg = Release|Any CPU

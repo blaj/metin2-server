@@ -26,11 +26,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Metin2Server.Domain\Metin2Server.Domain.csproj"/>
         <ProjectReference Include="..\Metin2Server.Shared\Metin2Server.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Domain\" />
+        <Folder Include="Infrastructure\" />
         <Folder Include="Migrations\"/>
     </ItemGroup>
 </Project>

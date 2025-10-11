@@ -6,21 +6,21 @@ import "Common/Enums.proto";
 
 option csharp_namespace = "Metin2Server.Shared.DbContracts.Common";
 
-message Character {
+message CharacterGrpc {
   int64 id = 1;
   string name = 2;
-  Race race = 3;
+  RaceGrpc race = 3;
   uint32 index = 4;
   uint32 part_base = 5;
   uint32 part_main = 6;
   uint32 part_hair = 7;
   uint32 skill_group = 8;
-  CoordinatesInfo coordinates = 9;
-  StatisticsInfo statistics = 10;
-  HorseStatisticsInfo horse_statistics = 11;
+  CoordinatesInfoGrpc coordinates = 9;
+  StatisticsInfoGrpc statistics = 10;
+  HorseStatisticsInfoGrpc horse_statistics = 11;
 }
 
-message CoordinatesInfo {
+message CoordinatesInfoGrpc {
   uint32 dir = 1;
   int32 x = 2;
   int32 y = 3;
@@ -31,7 +31,7 @@ message CoordinatesInfo {
   google.protobuf.UInt32Value exit_map_index = 8;
 }
 
-message StatisticsInfo {
+message StatisticsInfoGrpc {
   int32 hp = 1;
   int32 sp = 2;
   int32 stamina = 3;
@@ -54,10 +54,51 @@ message StatisticsInfo {
   uint32 stat_reset_count = 20;
 }
 
-message HorseStatisticsInfo {
+message HorseStatisticsInfoGrpc {
   uint32 level = 1;
   bool riding = 2;
   int32 stamina = 3;
   int32 health = 4;
   int32 health_drop_time = 5;
+}
+
+message CharacterItemGrpc {
+  int64 id = 1;
+  WindowTypeGrpc window_type = 2;
+  uint32 position = 3;
+  uint32 count = 4;
+  ItemDefinitionGrpc item_definition = 5;
+  repeated int32 sockets = 6;
+  repeated ItemAttributeGrpc attributes = 7;
+}
+
+message ItemDefinitionGrpc {
+  int64 id = 1;
+  string name = 2;
+  ItemTypeGrpc type = 3;
+  ItemSubTypeGrpc sub_type = 4;
+  uint32 size = 5;
+  uint64 anti_flag = 6;
+  uint64 flag = 7;
+  uint64 wear_flag = 8;
+  uint32 price = 9;
+  uint32 shop_buy_price = 10;
+  repeated ItemLimitGrpc limits = 11;
+  repeated ItemAttributeGrpc attributes = 12;
+  repeated int32 values = 13;
+  repeated int32 sockets = 14;
+  uint32 magic_pct = 15;
+  uint32 specular = 16;
+  uint32 socket_pct = 17;
+  uint32 addon_type = 18;
+}
+
+message ItemAttributeGrpc {
+  ItemAttributeTypeGrpc type = 1;
+  uint32 value = 2;
+}
+
+message ItemLimitGrpc {
+  ItemLimitTypeGrpc type = 1;
+  uint32 value = 2;
 }
